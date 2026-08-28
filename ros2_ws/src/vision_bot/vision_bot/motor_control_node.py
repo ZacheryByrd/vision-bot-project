@@ -13,6 +13,11 @@ drives the real motor driver. This node never changes between the two.
 Subscribed topics:
     /vision_bot/detection (std_msgs/Float32MultiArray)
         See perception_node.py for the field layout.
+    /vision_bot/autonomous_enabled (std_msgs/Bool)
+        Defaults to enabled. Publish `false` to stop this node from
+        publishing anything at all, freeing up /cmd_vel for manual
+        control (e.g. teleop_twist_keyboard) without the two fighting
+        over the topic. Publish `true` to hand control back.
 
 Published topics:
     /cmd_vel (geometry_msgs/Twist)
@@ -35,7 +40,7 @@ import time
 
 import rclpy
 from rclpy.node import Node
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Bool, Float32MultiArray
 from geometry_msgs.msg import Twist
 
 
@@ -55,9 +60,13 @@ class MotorControlNode(Node):
         self.detection_sub = self.create_subscription(
             Float32MultiArray, "/vision_bot/detection", self._on_detection, 10
         )
+        self.enabled_sub = self.create_subscription(
+            Bool, "/vision_bot/autonomous_enabled", self._on_enabled, 10
+        )
 
         self._last_detection_time = 0.0
         self._last_seen_direction = 1.0  # for search behavior: which way to spin
+        self._autonomous_enabled = True
 
         # Watchdog timer: if perception goes quiet, stop the robot rather
         # than keep executing a stale command.
@@ -65,7 +74,16 @@ class MotorControlNode(Node):
 
         self.get_logger().info("motor_control_node up, publishing on /cmd_vel")
 
+    def _on_enabled(self, msg: Bool):
+        self._autonomous_enabled = msg.data
+        self.get_logger().info(
+            f"autonomous control {'enabled' if msg.data else 'disabled -- /cmd_vel is free for manual control'}"
+        )
+
     def _on_detection(self, msg: Float32MultiArray):
+        if not self._autonomous_enabled:
+            return
+
         detected, offset_x, offset_y, area_fraction, confidence = msg.data
         self._last_detection_time = time.time()
 
@@ -100,6 +118,9 @@ class MotorControlNode(Node):
         self.cmd_pub.publish(cmd)
 
     def _watchdog(self):
+        if not self._autonomous_enabled:
+            return
+
         elapsed = time.time() - self._last_detection_time
         timeout = self.get_parameter("lost_timeout_sec").value
         if elapsed <= timeout:
