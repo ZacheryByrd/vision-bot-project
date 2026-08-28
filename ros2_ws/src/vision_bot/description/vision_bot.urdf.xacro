@@ -3,7 +3,7 @@
 
   <!-- Minimal diff-drive rover: a box chassis, two driven wheels, a
        caster, and a forward-facing camera. Tune dimensions/masses once
-       you're iterating -- this is a starting point, not a tuned model. -->
+       you're iterating; this is a starting point, not a tuned model. -->
 
   <xacro:property name="chassis_length" value="0.20"/>
   <xacro:property name="chassis_width" value="0.14"/>

@@ -16,8 +16,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import ExecuteProcess, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 import xacro
 
@@ -30,13 +31,24 @@ def generate_launch_description():
     robot_description_config = xacro.process_file(xacro_file)
     robot_description = {"robot_description": robot_description_config.toxml()}
 
+    gui_arg = DeclareLaunchArgument(
+        "gui",
+        default_value="true",
+        description="Launch the Gazebo client GUI window. Set to false for "
+        "headless runs (CI, or no display attached -- e.g. `xvfb-run ros2 "
+        "launch vision_bot sim_launch.py gui:=false`).",
+    )
+
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
                 get_package_share_directory("gazebo_ros"), "launch", "gazebo.launch.py"
             )
         ),
-        launch_arguments={"world": world_file}.items(),
+        launch_arguments={
+            "world": world_file,
+            "gui": LaunchConfiguration("gui"),
+        }.items(),
     )
 
     robot_state_publisher = Node(
@@ -69,5 +81,5 @@ def generate_launch_description():
     )
 
     return LaunchDescription(
-        [gazebo, robot_state_publisher, spawn_entity, perception, motor_control]
+        [gui_arg, gazebo, robot_state_publisher, spawn_entity, perception, motor_control]
     )

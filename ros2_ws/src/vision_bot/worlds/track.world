@@ -4,7 +4,7 @@
     <include><uri>model://ground_plane</uri></include>
     <include><uri>model://sun</uri></include>
 
-    <!-- A single red box as the default vision target -- matches the
+    <!-- A single red box as the default vision target; matches the
          default HSV threshold (hue 0-10) in perception_node.py. Add
          more models here, or replace with a painted line on the ground
          plane, for the line-following variant. -->
