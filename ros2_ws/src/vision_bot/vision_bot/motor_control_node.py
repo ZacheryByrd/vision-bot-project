@@ -20,7 +20,12 @@ Published topics:
 Control law (deliberately simple -- a proportional controller):
     angular.z = -Kp_angular * offset_x           (turn toward the target)
     linear.x  = base_speed * (1 - |offset_x|)     (slow down while turning)
-                reduced further if area_fraction is large (target is close)
+                reduced further as area_fraction approaches
+                `stop_area_fraction`, and held at 0 once the target is
+                that big in-frame -- this is what stops the rover from
+                driving straight into the target instead of just slowing
+                down near it (slowing alone was tried first and still let
+                it creep forward until it collided).
 
     If no detection for `lost_timeout` seconds, stop (or optionally spin
     slowly to search -- toggle via the `search_when_lost` parameter).
@@ -44,6 +49,7 @@ class MotorControlNode(Node):
         self.declare_parameter("lost_timeout_sec", 0.75)
         self.declare_parameter("search_when_lost", True)
         self.declare_parameter("search_angular_speed", 0.3)
+        self.declare_parameter("stop_area_fraction", 0.15)   # halt approach once target is this big in-frame
 
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.detection_sub = self.create_subscription(
@@ -79,10 +85,17 @@ class MotorControlNode(Node):
         base_speed = self.get_parameter("base_linear_speed").value
 
         cmd.angular.z = -angular_gain * offset_x
-        # Slow down proportionally to how far off-center we are, and
-        # further if the target is already close (large area_fraction).
-        proximity_factor = max(0.2, 1.0 - area_fraction)
-        cmd.linear.x = base_speed * (1.0 - min(1.0, abs(offset_x))) * proximity_factor
+
+        stop_area_fraction = self.get_parameter("stop_area_fraction").value
+        if area_fraction >= stop_area_fraction:
+            # Close enough -- hold position (still allowed to rotate to
+            # stay centered) instead of creeping forward into the target.
+            cmd.linear.x = 0.0
+        else:
+            # Slow down proportionally to how far off-center we are, and
+            # further as the target grows toward the stop threshold.
+            proximity_factor = max(0.2, 1.0 - area_fraction / stop_area_fraction)
+            cmd.linear.x = base_speed * (1.0 - min(1.0, abs(offset_x))) * proximity_factor
 
         self.cmd_pub.publish(cmd)
 
