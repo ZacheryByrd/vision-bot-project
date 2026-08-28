@@ -1,0 +1,11 @@
+# Example param overrides -- load with:
+#   ros2 run vision_bot perception_node --ros-args --params-file config/perception_params.yaml
+perception_node:
+  ros__parameters:
+    image_topic: "/camera/image_raw"
+    target_hue_low: 0
+    target_hue_high: 10
+    target_sat_low: 120
+    target_val_low: 80
+    min_contour_area: 200
+    publish_debug_image: true

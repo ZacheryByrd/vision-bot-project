@@ -1,0 +1,34 @@
+# Usage (from repo root):
+#   docker compose -f docker/docker-compose.yml build
+#   docker compose -f docker/docker-compose.yml run --rm ros
+#
+# Inside the container:
+#   cd /workspace/ros2_ws
+#   colcon build --symlink-install
+#   source install/setup.bash
+#   ros2 launch vision_bot sim_launch.py
+#
+# GUI (Gazebo window) requires Windows 11 WSLg, which Docker Desktop's WSL2
+# backend exposes automatically. If the Gazebo window doesn't appear, open
+# Docker Desktop settings -> Resources -> WSL Integration and make sure it's
+# enabled, then restart Docker Desktop.
+services:
+  ros:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vision_bot_dev:humble
+    container_name: vision_bot_dev
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0}
+      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
+      - PULSE_SERVER=/mnt/wslg/PulseServer
+      - LIBGL_ALWAYS_SOFTWARE=1
+    volumes:
+      - ../ros2_ws:/workspace/ros2_ws
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /mnt/wslg:/mnt/wslg
+    stdin_open: true
+    tty: true
+    network_mode: host
