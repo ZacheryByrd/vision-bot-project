@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-// npm dependency: roslib (see package.json). If types are missing,
-// `declare module "roslib"` in a .d.ts, or `npm i -D @types/roslib` if published.
 import ROSLIB from "roslib";
 
 export type DetectionState = {

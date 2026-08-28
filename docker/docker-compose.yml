@@ -17,6 +17,21 @@
 #      Windows Firewall prompt appears, click Allow)
 # If you later get a real WSL distro with WSLg working, switch DISPLAY back
 # to ${DISPLAY:-:0} and re-add the /tmp/.X11-unix and /mnt/wslg mounts.
+#
+# Networking: bridge mode with explicit port publishing, not host mode --
+# Docker Desktop's "host" networking on Windows is the WSL2 VM's network,
+# not actually the Windows host, so it doesn't forward ports to Windows
+# localhost the way it does on native Linux. All our multi-terminal usage
+# is `docker compose exec` into this one container, so bridge mode doesn't
+# change any of that.
+#
+# Host ports are 9091 -> rosbridge_websocket's 9090, and 8081 ->
+# web_video_server's 8080, NOT the tools' usual 9090/8080 -- those two
+# host ports got stuck in Docker Desktop's proxy state during setup and
+# refused to bind (a Docker Desktop quirk, not anything in this project).
+# If you restart Docker Desktop and want the standard ports back, change
+# these back to "9090:9090" / "8080:8080" and update dashboard/.env.local
+# to match.
 services:
   ros:
     build:
@@ -29,6 +44,8 @@ services:
       - LIBGL_ALWAYS_SOFTWARE=1
     volumes:
       - ../ros2_ws:/workspace/ros2_ws
+    ports:
+      - "9091:9090"
+      - "8081:8080"
     stdin_open: true
     tty: true
-    network_mode: host

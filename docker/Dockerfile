@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-image-transport \
     ros-humble-teleop-twist-keyboard \
     ros-humble-rqt-image-view \
+    ros-humble-rosbridge-suite \
+    ros-humble-web-video-server \
     python3-colcon-common-extensions \
     python3-opencv \
     python3-pip \

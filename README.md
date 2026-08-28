@@ -71,17 +71,43 @@ ros2 topic echo /vision_bot/detection
 ros2 run rqt_image_view rqt_image_view   # view /vision_bot/debug_image
 ```
 
-## Quickstart (dashboard)
+`motor_control_node` and `teleop_twist_keyboard` both publish to `/cmd_vel`
+with no arbitration, so manual driving fights the autonomous loop whenever a
+target is in view. Free up `/cmd_vel` for manual control with:
 
 ```bash
+ros2 topic pub --once /vision_bot/autonomous_enabled std_msgs/msg/Bool "{data: false}"
+```
+
+(`{data: true}` hands control back.)
+
+## Quickstart (dashboard)
+
+**Terminal 3 -- rosbridge + video stream** (needs the sim already running from
+Terminal 1; run inside the container, e.g. via `docker compose exec ros bash`):
+
+```bash
+source /opt/ros/humble/setup.bash
+source /workspace/ros2_ws/install/setup.bash
+ros2 launch vision_bot bridge_launch.py
+```
+
+This starts `rosbridge_websocket` (topics over WebSocket, for `roslibjs`) and
+`web_video_server` (MJPEG stream over HTTP). They're published to the host as
+9091 and 8081 respectively, not their usual 9090/8080 -- see the comment in
+`docker/docker-compose.yml` for why.
+
+**On the Windows host -- the dashboard itself:**
+
+```powershell
 cd dashboard
 npm install
-cp .env.local.example .env.local   # point at your rosbridge/web_video_server host
+cp .env.local.example .env.local
 npm run dev
 ```
 
-Requires `rosbridge_suite` and `web_video_server` running alongside the
-ROS2 nodes -- see `dashboard/README.md` for exact commands.
+Open http://localhost:3000 -- you should see the live camera feed and status
+panel (connection state, detection offset, `/cmd_vel`) updating in real time.
 
 ## Status
 
@@ -91,8 +117,12 @@ ROS2 nodes -- see `dashboard/README.md` for exact commands.
   `/cmd_vel`, `/vision_bot/detection` are all live and correctly wired.
 - Manually verified drivable via `teleop_twist_keyboard` -- `/cmd_vel`
   actually moves the rover in Gazebo.
-- Not yet verified: whether the default HSV threshold actually detects the
-  red target box reliably, and whether `motor_control_node`'s gains produce
-  smooth (non-oscillating) tracking. That's the next milestone -- see
-  `PROJECT_PLAN.md` Week 2/3.
-- Dashboard is scaffolded but not yet run against a live rosbridge connection.
+- Perception confirmed working: the default HSV threshold reliably detects
+  the red target box, with correct offset/area values.
+- Control loop confirmed working: the rover drives toward the box and stops
+  at a set distance (`stop_area_fraction`) instead of colliding with it.
+- Not yet verified: dashboard against a live rosbridge connection (bridge
+  processes are up and reachable, browser-side hasn't been exercised yet).
+- Not yet done: closed-loop tuning under different starting positions/angles
+  (currently only tested from roughly straight-on), and a full lap/loop
+  around a real track per the plan's definition of done.
