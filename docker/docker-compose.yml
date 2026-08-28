@@ -8,10 +8,15 @@
 #   source install/setup.bash
 #   ros2 launch vision_bot sim_launch.py
 #
-# GUI (Gazebo window) requires Windows 11 WSLg, which Docker Desktop's WSL2
-# backend exposes automatically. If the Gazebo window doesn't appear, open
-# Docker Desktop settings -> Resources -> WSL Integration and make sure it's
-# enabled, then restart Docker Desktop.
+# GUI (Gazebo window): this machine has no WSLg-active WSL distro, so the
+# Gazebo window is displayed via VcXsrv (a Windows X server) instead of
+# WSLg passthrough. Before launching:
+#   1. Install VcXsrv: winget install marha.VcXsrv
+#   2. Run it: & "C:\Program Files\VcXsrv\vcxsrv.exe" -multiwindow -clipboard -wgl -ac
+#      (-ac disables access control so the container can connect; if a
+#      Windows Firewall prompt appears, click Allow)
+# If you later get a real WSL distro with WSLg working, switch DISPLAY back
+# to ${DISPLAY:-:0} and re-add the /tmp/.X11-unix and /mnt/wslg mounts.
 services:
   ros:
     build:
@@ -20,15 +25,10 @@ services:
     image: vision_bot_dev:humble
     container_name: vision_bot_dev
     environment:
-      - DISPLAY=${DISPLAY:-:0}
-      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY:-wayland-0}
-      - XDG_RUNTIME_DIR=/mnt/wslg/runtime-dir
-      - PULSE_SERVER=/mnt/wslg/PulseServer
+      - DISPLAY=host.docker.internal:0.0
       - LIBGL_ALWAYS_SOFTWARE=1
     volumes:
       - ../ros2_ws:/workspace/ros2_ws
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - /mnt/wslg:/mnt/wslg
     stdin_open: true
     tty: true
     network_mode: host
