@@ -121,8 +121,11 @@ panel (connection state, detection offset, `/cmd_vel`) updating in real time.
   the red target box, with correct offset/area values.
 - Control loop confirmed working: the rover drives toward the box and stops
   at a set distance (`stop_area_fraction`) instead of colliding with it.
-- Not yet verified: dashboard against a live rosbridge connection (bridge
-  processes are up and reachable, browser-side hasn't been exercised yet).
+- Dashboard confirmed working end-to-end: WebSocket connects to rosbridge
+  and receives correctly-formatted messages, the MJPEG stream serves with
+  the right content-type, and the Next.js app builds and renders correctly
+  (validated with synthetic ROS data; not yet checked against the live sim
+  in a real browser).
 - Not yet done: closed-loop tuning under different starting positions/angles
   (currently only tested from roughly straight-on), and a full lap/loop
   around a real track per the plan's definition of done.
