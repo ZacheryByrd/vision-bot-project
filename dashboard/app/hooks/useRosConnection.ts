@@ -29,7 +29,12 @@ export function useRosConnection() {
   const [connected, setConnected] = useState(false);
   const [detection, setDetection] = useState<DetectionState | null>(null);
   const [cmdVel, setCmdVel] = useState<CmdVelState | null>(null);
+  // motor_control_node has no "current mode" topic, only the command
+  // topic below -- this tracks the last value we sent, not a confirmed
+  // ack from the robot. Defaults to true to match the node's own default.
+  const [autonomousEnabled, setAutonomousEnabledState] = useState(true);
   const rosRef = useRef<ROSLIB.Ros | null>(null);
+  const autonomousTopicRef = useRef<ROSLIB.Topic | null>(null);
 
   useEffect(() => {
     const ros = new ROSLIB.Ros({ url: ROS_WS_URL });
@@ -64,12 +69,25 @@ export function useRosConnection() {
       setCmdVel({ linearX: msg.linear.x, angularZ: msg.angular.z });
     });
 
+    const autonomousTopic = new ROSLIB.Topic({
+      ros,
+      name: "/vision_bot/autonomous_enabled",
+      messageType: "std_msgs/Bool",
+    });
+    autonomousTopicRef.current = autonomousTopic;
+
     return () => {
       detectionTopic.unsubscribe();
       cmdVelTopic.unsubscribe();
+      autonomousTopicRef.current = null;
       ros.close();
     };
   }, []);
 
-  return { connected, detection, cmdVel };
+  function setAutonomousEnabled(enabled: boolean) {
+    autonomousTopicRef.current?.publish(new ROSLIB.Message({ data: enabled }));
+    setAutonomousEnabledState(enabled);
+  }
+
+  return { connected, detection, cmdVel, autonomousEnabled, setAutonomousEnabled };
 }
