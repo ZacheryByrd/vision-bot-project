@@ -87,7 +87,8 @@ class MotorControlNode(Node):
         self.declare_parameter("lost_timeout_sec", 0.75)
         self.declare_parameter("search_when_lost", True)
         self.declare_parameter("search_angular_speed", 0.3)
-        self.declare_parameter("stop_area_fraction", 0.15)   # halt approach once target is this big in-frame
+        # halt approach once target's bounding-box area reaches this fraction of the frame
+        self.declare_parameter("stop_area_fraction", 0.15)
 
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.detection_sub = self.create_subscription(
@@ -109,9 +110,12 @@ class MotorControlNode(Node):
 
     def _on_enabled(self, msg: Bool):
         self._autonomous_enabled = msg.data
-        self.get_logger().info(
-            f"autonomous control {'enabled' if msg.data else 'disabled -- /cmd_vel is free for manual control'}"
-        )
+        if msg.data:
+            self.get_logger().info("autonomous control enabled")
+        else:
+            self.get_logger().info(
+                "autonomous control disabled -- /cmd_vel is free for manual control"
+            )
 
     def _on_detection(self, msg: Float32MultiArray):
         if not self._autonomous_enabled:
