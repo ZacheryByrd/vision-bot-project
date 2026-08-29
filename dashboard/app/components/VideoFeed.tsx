@@ -17,6 +17,7 @@ export default function VideoFeed({ connected }: { connected: boolean }) {
         <img src={VIDEO_STREAM_URL} alt="Live camera feed from vision_bot" />
       ) : (
         <div className="video-feed__placeholder">
+          <span className="video-feed__pulse" />
           Waiting for connection to the robot...
         </div>
       )}

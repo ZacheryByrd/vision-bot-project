@@ -3,21 +3,25 @@
 import type { CmdVelState, DetectionState } from "../hooks/useRosConnection";
 
 export default function StatusPanel({
-  connected,
   detection,
   cmdVel,
 }: {
-  connected: boolean;
   detection: DetectionState | null;
   cmdVel: CmdVelState | null;
 }) {
   return (
     <div className="status-panel">
-      <Row label="Connection" value={connected ? "connected" : "disconnected"} />
-      <Row
-        label="Target detected"
-        value={detection ? (detection.detected ? "yes" : "no") : "--"}
-      />
+      <div className="status-panel__row">
+        <span className="status-panel__label">Target detected</span>
+        <span className="status-panel__value">
+          <span
+            className={`status-dot ${
+              detection?.detected ? "status-dot--on" : "status-dot--off"
+            }`}
+          />
+          {detection ? (detection.detected ? "yes" : "no") : "--"}
+        </span>
+      </div>
       <Row
         label="Offset (x, y)"
         value={
@@ -25,6 +29,10 @@ export default function StatusPanel({
             ? `${detection.offsetX.toFixed(2)}, ${detection.offsetY.toFixed(2)}`
             : "--"
         }
+      />
+      <Row
+        label="Target area"
+        value={detection ? `${(detection.areaFraction * 100).toFixed(1)}%` : "--"}
       />
       <Row
         label="cmd_vel (linear, angular)"

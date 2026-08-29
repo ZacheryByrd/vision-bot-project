@@ -1,6 +1,7 @@
 "use client";
 
 import { useRosConnection } from "./hooks/useRosConnection";
+import Header from "./components/Header";
 import VideoFeed from "./components/VideoFeed";
 import StatusPanel from "./components/StatusPanel";
 import ControlPanel from "./components/ControlPanel";
@@ -11,11 +12,11 @@ export default function DashboardPage() {
 
   return (
     <main className="dashboard">
-      <h1>vision_bot dashboard</h1>
+      <Header connected={connected} />
       <div className="dashboard__grid">
         <VideoFeed connected={connected} />
         <div className="dashboard__sidebar">
-          <StatusPanel connected={connected} detection={detection} cmdVel={cmdVel} />
+          <StatusPanel detection={detection} cmdVel={cmdVel} />
           <ControlPanel
             connected={connected}
             autonomousEnabled={autonomousEnabled}
