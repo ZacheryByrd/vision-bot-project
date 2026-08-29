@@ -126,6 +126,13 @@ panel (connection state, detection offset, `/cmd_vel`) updating in real time.
   the right content-type, and the Next.js app builds and renders correctly
   (validated with synthetic ROS data; not yet checked against the live sim
   in a real browser).
-- Not yet done: closed-loop tuning under different starting positions/angles
-  (currently only tested from roughly straight-on), and a full lap/loop
-  around a real track per the plan's definition of done.
+- Closed-loop behavior verified from multiple starting poses (repositioning
+  the rover via `gz model` and checking the resulting detection/pose): an
+  angled off-center approach, and starting turned 180 degrees away from the
+  target. The second case caught a real bug -- `search_when_lost` was dead
+  code because the "last detection" timestamp was refreshed on every camera
+  frame instead of only on an actual detection, so the watchdog's search
+  behavior could never trigger. Fixed and reverified; the rover now spins to
+  reacquire a lost target and centers/approaches/stops correctly.
+- Not yet done: a full lap/loop around a real track (current world has a
+  single static target, not a loop) per the plan's definition of done.
