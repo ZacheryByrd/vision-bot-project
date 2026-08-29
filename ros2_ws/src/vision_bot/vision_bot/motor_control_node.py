@@ -44,6 +44,39 @@ from std_msgs.msg import Bool, Float32MultiArray
 from geometry_msgs.msg import Twist
 
 
+def compute_tracking_cmd(
+    offset_x: float,
+    area_fraction: float,
+    *,
+    angular_gain: float,
+    base_linear_speed: float,
+    offset_deadband: float,
+    stop_area_fraction: float,
+) -> tuple:
+    """Pure control law: detection geometry -> (linear_x, angular_z).
+
+    Pulled out of MotorControlNode so it can be unit tested directly --
+    no rclpy node, no publishers/subscribers, just the math. See
+    test/test_motor_control_logic.py.
+    """
+    if abs(offset_x) < offset_deadband:
+        offset_x = 0.0
+
+    angular_z = -angular_gain * offset_x
+
+    if area_fraction >= stop_area_fraction:
+        # Close enough -- hold position (still allowed to rotate to stay
+        # centered) instead of creeping forward into the target.
+        linear_x = 0.0
+    else:
+        # Slow down proportionally to how far off-center we are, and
+        # further as the target grows toward the stop threshold.
+        proximity_factor = max(0.2, 1.0 - area_fraction / stop_area_fraction)
+        linear_x = base_linear_speed * (1.0 - min(1.0, abs(offset_x))) * proximity_factor
+
+    return linear_x, angular_z
+
+
 class MotorControlNode(Node):
     def __init__(self):
         super().__init__("motor_control_node")
@@ -86,8 +119,6 @@ class MotorControlNode(Node):
 
         detected, offset_x, offset_y, area_fraction, confidence = msg.data
 
-        cmd = Twist()
-
         if detected < 0.5:
             # No target this frame; let the watchdog decide what to do.
             return
@@ -98,27 +129,20 @@ class MotorControlNode(Node):
         self._last_detection_time = time.time()
 
         deadband = self.get_parameter("offset_deadband").value
-        if abs(offset_x) < deadband:
-            offset_x = 0.0
-        else:
+        if abs(offset_x) >= deadband:
             self._last_seen_direction = 1.0 if offset_x > 0 else -1.0
 
-        angular_gain = self.get_parameter("angular_gain").value
-        base_speed = self.get_parameter("base_linear_speed").value
-
-        cmd.angular.z = -angular_gain * offset_x
-
-        stop_area_fraction = self.get_parameter("stop_area_fraction").value
-        if area_fraction >= stop_area_fraction:
-            # Close enough -- hold position (still allowed to rotate to
-            # stay centered) instead of creeping forward into the target.
-            cmd.linear.x = 0.0
-        else:
-            # Slow down proportionally to how far off-center we are, and
-            # further as the target grows toward the stop threshold.
-            proximity_factor = max(0.2, 1.0 - area_fraction / stop_area_fraction)
-            cmd.linear.x = base_speed * (1.0 - min(1.0, abs(offset_x))) * proximity_factor
-
+        linear_x, angular_z = compute_tracking_cmd(
+            offset_x,
+            area_fraction,
+            angular_gain=self.get_parameter("angular_gain").value,
+            base_linear_speed=self.get_parameter("base_linear_speed").value,
+            offset_deadband=deadband,
+            stop_area_fraction=self.get_parameter("stop_area_fraction").value,
+        )
+        cmd = Twist()
+        cmd.linear.x = linear_x
+        cmd.angular.z = angular_z
         self.cmd_pub.publish(cmd)
 
     def _watchdog(self):

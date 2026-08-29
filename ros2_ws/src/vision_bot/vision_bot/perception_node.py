@@ -48,6 +48,50 @@ from std_msgs.msg import Float32MultiArray
 from cv_bridge import CvBridge
 
 
+def detect_target(frame: np.ndarray, *, hue_low, hue_high, sat_low, val_low, min_area):
+    """HSV threshold + largest-contour tracking.
+
+    Pulled out of PerceptionNode so it can be unit tested directly against
+    synthetic images -- no rclpy node, no camera, just OpenCV. See
+    test/test_perception_logic.py.
+
+    Returns (detected: bool, offset_x, offset_y, area_fraction, debug_frame).
+    offset_x/offset_y are normalized to [-1, 1]; 0 means dead-center.
+    """
+    h, w = frame.shape[:2]
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    lower = np.array([hue_low, sat_low, val_low])
+    upper = np.array([hue_high, 255, 255])
+    mask = cv2.inRange(hsv, lower, upper)
+    mask = cv2.erode(mask, None, iterations=2)
+    mask = cv2.dilate(mask, None, iterations=2)
+
+    contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    debug_frame = frame.copy()
+
+    if not contours:
+        return False, 0.0, 0.0, 0.0, debug_frame
+
+    largest = max(contours, key=cv2.contourArea)
+    area = cv2.contourArea(largest)
+    if area < min_area:
+        return False, 0.0, 0.0, 0.0, debug_frame
+
+    x, y, bw, bh = cv2.boundingRect(largest)
+    cx, cy = x + bw / 2.0, y + bh / 2.0
+
+    offset_x = (cx - w / 2.0) / (w / 2.0)
+    offset_y = (cy - h / 2.0) / (h / 2.0)
+    area_fraction = min(1.0, area / float(w * h))
+
+    cv2.rectangle(debug_frame, (x, y), (x + bw, y + bh), (0, 255, 0), 2)
+    cv2.circle(debug_frame, (int(cx), int(cy)), 5, (0, 0, 255), -1)
+    cv2.line(debug_frame, (w // 2, 0), (w // 2, h), (255, 0, 0), 1)
+
+    return True, offset_x, offset_y, area_fraction, debug_frame
+
+
 class PerceptionNode(Node):
     def __init__(self):
         super().__init__("perception_node")
@@ -104,44 +148,14 @@ class PerceptionNode(Node):
         Returns (detected: bool, offset_x, offset_y, area_fraction, debug_frame).
         offset_x/offset_y are normalized to [-1, 1]; 0 means dead-center.
         """
-        h, w = frame.shape[:2]
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
-        hue_low = self.get_parameter("target_hue_low").value
-        hue_high = self.get_parameter("target_hue_high").value
-        sat_low = self.get_parameter("target_sat_low").value
-        val_low = self.get_parameter("target_val_low").value
-        min_area = self.get_parameter("min_contour_area").value
-
-        lower = np.array([hue_low, sat_low, val_low])
-        upper = np.array([hue_high, 255, 255])
-        mask = cv2.inRange(hsv, lower, upper)
-        mask = cv2.erode(mask, None, iterations=2)
-        mask = cv2.dilate(mask, None, iterations=2)
-
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        debug_frame = frame.copy()
-
-        if not contours:
-            return False, 0.0, 0.0, 0.0, debug_frame
-
-        largest = max(contours, key=cv2.contourArea)
-        area = cv2.contourArea(largest)
-        if area < min_area:
-            return False, 0.0, 0.0, 0.0, debug_frame
-
-        x, y, bw, bh = cv2.boundingRect(largest)
-        cx, cy = x + bw / 2.0, y + bh / 2.0
-
-        offset_x = (cx - w / 2.0) / (w / 2.0)
-        offset_y = (cy - h / 2.0) / (h / 2.0)
-        area_fraction = min(1.0, area / float(w * h))
-
-        cv2.rectangle(debug_frame, (x, y), (x + bw, y + bh), (0, 255, 0), 2)
-        cv2.circle(debug_frame, (int(cx), int(cy)), 5, (0, 0, 255), -1)
-        cv2.line(debug_frame, (w // 2, 0), (w // 2, h), (255, 0, 0), 1)
-
-        return True, offset_x, offset_y, area_fraction, debug_frame
+        return detect_target(
+            frame,
+            hue_low=self.get_parameter("target_hue_low").value,
+            hue_high=self.get_parameter("target_hue_high").value,
+            sat_low=self.get_parameter("target_sat_low").value,
+            val_low=self.get_parameter("target_val_low").value,
+            min_area=self.get_parameter("min_contour_area").value,
+        )
 
 
 def main(args=None):
