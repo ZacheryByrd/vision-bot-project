@@ -30,6 +30,7 @@ jobs:
       # out that way.
       - name: Run unit tests
         working-directory: ros2_ws/src/vision_bot
+        shell: bash
         run: |
           source /opt/ros/humble/setup.bash
           export PYTHONPATH="$PYTHONPATH:$GITHUB_WORKSPACE/ros2_ws/src/vision_bot"
