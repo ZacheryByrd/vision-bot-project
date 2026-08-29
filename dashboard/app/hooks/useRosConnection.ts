@@ -25,6 +25,9 @@ const ROS_WS_URL =
  * perception_node.py / motor_control_node.py in the ROS2 package --
  * keep these in sync if you change the message layout there.
  */
+const RECONNECT_BASE_DELAY_MS = 2000;
+const RECONNECT_MAX_DELAY_MS = 10000;
+
 export function useRosConnection() {
   const [connected, setConnected] = useState(false);
   const [detection, setDetection] = useState<DetectionState | null>(null);
@@ -37,50 +40,84 @@ export function useRosConnection() {
   const autonomousTopicRef = useRef<ROSLIB.Topic | null>(null);
 
   useEffect(() => {
-    const ros = new ROSLIB.Ros({ url: ROS_WS_URL });
-    rosRef.current = ros;
+    let cancelled = false;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reconnectAttempt = 0;
 
-    ros.on("connection", () => setConnected(true));
-    ros.on("close", () => setConnected(false));
-    ros.on("error", () => setConnected(false));
+    function connect() {
+      if (cancelled) {
+        return;
+      }
 
-    const detectionTopic = new ROSLIB.Topic({
-      ros,
-      name: "/vision_bot/detection",
-      messageType: "std_msgs/Float32MultiArray",
-    });
-    detectionTopic.subscribe((msg: any) => {
-      const [detected, offsetX, offsetY, areaFraction, confidence] = msg.data;
-      setDetection({
-        detected: detected > 0.5,
-        offsetX,
-        offsetY,
-        areaFraction,
-        confidence,
+      const ros = new ROSLIB.Ros({ url: ROS_WS_URL });
+      rosRef.current = ros;
+
+      let reconnectScheduled = false;
+      function scheduleReconnect() {
+        setConnected(false);
+        autonomousTopicRef.current = null;
+        if (cancelled || reconnectScheduled) {
+          return;
+        }
+        // The underlying WebSocket can fire both "error" and "close" for
+        // the same drop -- only schedule one retry per connection attempt.
+        reconnectScheduled = true;
+        const delay = Math.min(
+          RECONNECT_MAX_DELAY_MS,
+          RECONNECT_BASE_DELAY_MS * 2 ** reconnectAttempt
+        );
+        reconnectAttempt += 1;
+        reconnectTimer = setTimeout(connect, delay);
+      }
+
+      ros.on("connection", () => {
+        reconnectAttempt = 0;
+        setConnected(true);
       });
-    });
+      ros.on("close", scheduleReconnect);
+      ros.on("error", scheduleReconnect);
 
-    const cmdVelTopic = new ROSLIB.Topic({
-      ros,
-      name: "/cmd_vel",
-      messageType: "geometry_msgs/Twist",
-    });
-    cmdVelTopic.subscribe((msg: any) => {
-      setCmdVel({ linearX: msg.linear.x, angularZ: msg.angular.z });
-    });
+      const detectionTopic = new ROSLIB.Topic({
+        ros,
+        name: "/vision_bot/detection",
+        messageType: "std_msgs/Float32MultiArray",
+      });
+      detectionTopic.subscribe((msg: any) => {
+        const [detected, offsetX, offsetY, areaFraction, confidence] = msg.data;
+        setDetection({
+          detected: detected > 0.5,
+          offsetX,
+          offsetY,
+          areaFraction,
+          confidence,
+        });
+      });
 
-    const autonomousTopic = new ROSLIB.Topic({
-      ros,
-      name: "/vision_bot/autonomous_enabled",
-      messageType: "std_msgs/Bool",
-    });
-    autonomousTopicRef.current = autonomousTopic;
+      const cmdVelTopic = new ROSLIB.Topic({
+        ros,
+        name: "/cmd_vel",
+        messageType: "geometry_msgs/Twist",
+      });
+      cmdVelTopic.subscribe((msg: any) => {
+        setCmdVel({ linearX: msg.linear.x, angularZ: msg.angular.z });
+      });
+
+      autonomousTopicRef.current = new ROSLIB.Topic({
+        ros,
+        name: "/vision_bot/autonomous_enabled",
+        messageType: "std_msgs/Bool",
+      });
+    }
+
+    connect();
 
     return () => {
-      detectionTopic.unsubscribe();
-      cmdVelTopic.unsubscribe();
+      cancelled = true;
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+      }
       autonomousTopicRef.current = null;
-      ros.close();
+      rosRef.current?.close();
     };
   }, []);
 

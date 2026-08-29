@@ -41,9 +41,8 @@ are actually running -- your Pi's IP on the local network, or
 ## What's scaffolded here vs. what you build
 
 Scaffolded: the ROS connection hook, the video feed component, the
-status panel component, and the page layout. Left for you: styling
-polish, a connection-lost/reconnect state, and a control panel button
-for manual override / mode switching -- the backend half of that
-already exists (`motor_control_node` subscribes to
-`/vision_bot/autonomous_enabled`, a `std_msgs/Bool`), it just doesn't
-have a UI toggle here yet.
+status panel component, a manual/autonomous control panel toggle
+(publishes `std_msgs/Bool` to `/vision_bot/autonomous_enabled`), and
+the page layout. Left for you: styling polish, and a connection-lost/
+reconnect state -- right now `connected` just goes false and stays
+there if the WebSocket drops, no retry.
