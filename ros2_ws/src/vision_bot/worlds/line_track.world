@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="line_track_world">
+    <include><uri>model://ground_plane</uri></include>
+    <include><uri>model://sun</uri></include>
+
+    <!-- Line-following track: a regular octagon, radius 1.0m, centered at
+         (1.5, 0). Eight straight segments (length 0.7654m each) meeting at
+         45-degree turns -- gentler than a rectangle's 90-degree corners,
+         which matters because motor_control_node's proportional controller
+         has no path-planning, just "turn toward wherever the line currently
+         is." Segment coordinates/yaws are all derived from the same regular
+         octagon (see PROJECT_PLAN.md or line_follow_launch.py's comments
+         for how); each <visual> below is one segment, positioned at its
+         midpoint and rotated to lie along the segment direction.
+
+         spawn_x/y/yaw in line_follow_launch.py put the robot on segment 0
+         (the one nearest the world origin), facing along it, so perception
+         has the best possible starting view of the line. -->
+    <model name="line_track">
+      <static>true</static>
+      <link name="link">
+        <visual name="segment_0">
+          <pose>2.3536 0.3536 0.0016 0 0 1.9635</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+        <visual name="segment_1">
+          <pose>1.8536 0.8536 0.0016 0 0 2.7489</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+        <visual name="segment_2">
+          <pose>1.1464 0.8536 0.0016 0 0 3.5343</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+        <visual name="segment_3">
+          <pose>0.6464 0.3536 0.0016 0 0 4.3197</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+        <visual name="segment_4">
+          <pose>0.6464 -0.3536 0.0016 0 0 5.1051</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+        <visual name="segment_5">
+          <pose>1.1464 -0.8536 0.0016 0 0 5.8905</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+        <visual name="segment_6">
+          <pose>1.8536 -0.8536 0.0016 0 0 0.3927</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+        <visual name="segment_7">
+          <pose>2.3536 -0.3536 0.0016 0 0 1.1781</pose>
+          <geometry><box><size>0.7654 0.06 0.003</size></box></geometry>
+          <material>
+            <ambient>0.9 0.9 0.0 1</ambient>
+            <diffuse>0.9 0.9 0.0 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <physics type="ode">
+      <real_time_update_rate>1000.0</real_time_update_rate>
+    </physics>
+  </world>
+</sdf>

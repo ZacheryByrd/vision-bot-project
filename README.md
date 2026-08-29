@@ -96,6 +96,13 @@ ros2 launch vision_bot sim_launch.py
 A Gazebo window should appear (rendered via VcXsrv) with the rover and a red
 target box. Pass `gui:=false` to run headless instead (e.g. in CI).
 
+For the line-following demo instead -- the rover continuously follows a
+yellow octagon track rather than approaching and stopping at a static
+target -- launch `line_follow_launch.py` instead of `sim_launch.py`. Same
+nodes, same topics, just a different world + HSV threshold + control gains
+(passed as launch arguments; see that file's docstring for what changed and
+why). No other steps differ.
+
 **Terminal 2 -- drive it manually / inspect topics:**
 
 ```powershell
@@ -179,5 +186,10 @@ panel (connection state, detection offset, `/cmd_vel`) updating in real time.
   frame instead of only on an actual detection, so the watchdog's search
   behavior could never trigger. Fixed and reverified; the rover now spins to
   reacquire a lost target and centers/approaches/stops correctly.
-- Not yet done: a full lap/loop around a real track (current world has a
-  single static target, not a loop) per the plan's definition of done.
+- Line-following variant added (`line_follow_launch.py` + `worlds/line_track.world`,
+  a yellow octagon track) and verified: the rover completed more than a full
+  lap (tracked via `gz model` pose polling -- consistent ~48-degree progress
+  around the track center every ~13s, no backtracking or getting stuck) with
+  zero manual intervention. This is the plan's "full lap/loop" definition-of-done
+  item; the red-box demo intentionally stays approach-and-stop rather than
+  becoming a third variant of the same thing.
