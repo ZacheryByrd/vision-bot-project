@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: osrf/ros:humble-desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install package dependencies
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ros-humble-cv-bridge \
+            python3-opencv \
+            python3-numpy \
+            python3-pytest \
+            python3-flake8
+
+      # No colcon build needed: the tests exercise pure functions
+      # (compute_tracking_cmd, detect_target) via a plain PYTHONPATH import,
+      # not the built/installed package -- see test/ for why they're split
+      # out that way.
+      - name: Run unit tests
+        working-directory: ros2_ws/src/vision_bot
+        run: |
+          source /opt/ros/humble/setup.bash
+          export PYTHONPATH="$PYTHONPATH:$GITHUB_WORKSPACE/ros2_ws/src/vision_bot"
+          python3 -m pytest test/ -v
+
+      - name: Lint (flake8)
+        working-directory: ros2_ws/src/vision_bot
+        run: python3 -m flake8 --max-line-length=100 vision_bot/ test/
