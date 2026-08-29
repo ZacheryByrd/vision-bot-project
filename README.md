@@ -1,5 +1,7 @@
 # vision_bot -- Vision-Guided Rover
 
+[![CI](https://github.com/ZacheryByrd/vision-bot-project/actions/workflows/ci.yml/badge.svg)](https://github.com/ZacheryByrd/vision-bot-project/actions/workflows/ci.yml)
+
 Read **`PROJECT_PLAN.md`** first -- it has the full architecture rationale,
 week-by-week roadmap, hardware parts list (optional), and resume framing.
 
