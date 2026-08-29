@@ -85,13 +85,17 @@ class MotorControlNode(Node):
             return
 
         detected, offset_x, offset_y, area_fraction, confidence = msg.data
-        self._last_detection_time = time.time()
 
         cmd = Twist()
 
         if detected < 0.5:
             # No target this frame; let the watchdog decide what to do.
             return
+
+        # Only refresh on an actual detection, not merely a message arriving
+        # (perception_node publishes every frame regardless of detected) --
+        # otherwise the watchdog's "target lost" branch below never fires.
+        self._last_detection_time = time.time()
 
         deadband = self.get_parameter("offset_deadband").value
         if abs(offset_x) < deadband:
