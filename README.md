@@ -14,6 +14,49 @@ dashboard/                 Next.js live-feed + status dashboard
 PROJECT_PLAN.md            Full plan: roadmap, architecture, parts list
 ```
 
+## Architecture
+
+Perception and control are independent ROS2 nodes that only ever talk to
+each other over topics -- that separation is the whole point (see
+`PROJECT_PLAN.md` section 1). Nothing about vision lives in the control
+node; nothing about motors lives in the perception node. The dashboard is
+a third, completely separate consumer of the same topics via rosbridge --
+it can't see anything the ROS2 graph doesn't already expose.
+
+```mermaid
+flowchart LR
+    cam["Camera<br/>(Gazebo sim or real camera)"]
+
+    subgraph nodes ["ROS2 nodes"]
+        perception["perception_node<br/>OpenCV HSV + contour"]
+        control["motor_control_node<br/>proportional controller"]
+    end
+
+    subgraph actuation ["Actuation (one or the other)"]
+        gz["Gazebo diff-drive plugin<br/>(sim)"]
+        gpio["gpio_motor_driver<br/>(hardware)"]
+    end
+
+    subgraph bridge ["Dashboard bridge"]
+        rosbridge["rosbridge_websocket"]
+        webvideo["web_video_server"]
+    end
+
+    dash["Next.js dashboard<br/>(browser)"]
+
+    cam -- /camera/image_raw --> perception
+    perception -- /vision_bot/detection --> control
+    perception -- /vision_bot/debug_image --> webvideo
+    control -- /cmd_vel --> gz
+    control -- /cmd_vel --> gpio
+    perception -- /vision_bot/detection --> rosbridge
+    control -- /cmd_vel --> rosbridge
+    webvideo -- MJPEG over HTTP --> dash
+    rosbridge <-- WebSocket --> dash
+    dash -- /vision_bot/autonomous_enabled --> rosbridge
+    rosbridge -- /vision_bot/autonomous_enabled --> control
+```
+
 ## Quickstart (simulation)
 
 Windows has no good native ROS2 install path, so development happens inside
