@@ -213,3 +213,15 @@ panel (connection state, detection offset, `/cmd_vel`) updating in real time.
   confidence) -- and that the model needed to be scaled down from a
   realistic 1.7m, since the rover's low, level, non-tilting camera kept
   cropping a full adult height out of frame at approach distance.
+- DNN variant re-verified from multiple starting poses, same rigor as the
+  red-box demo: an angled off-center approach (converged to a stable stop,
+  confidence noisier -- 0.57-0.85 -- than straight-on, an honest consequence
+  of the target being a flat billboard viewed off-axis rather than an
+  actual 3D person) and starting turned 180 degrees away (watchdog
+  search-and-recovery works with the slower DNN inference too; reacquired,
+  centered, approached, and stopped as cleanly as the straight-on case).
+  One unrelated finding along the way: rapidly deleting and respawning a
+  Gazebo model via `gz model -d` back-to-back can crash `gzserver` outright
+  (a boost shared_ptr null-dereference, `gazebo::transport::Connection`) --
+  a Gazebo Classic bug triggered by the test methodology, not by anything
+  in this repo; a normal single `ros2 launch` never does this.
