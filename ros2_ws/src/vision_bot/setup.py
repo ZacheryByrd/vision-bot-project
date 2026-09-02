@@ -14,7 +14,28 @@ setup(
         (os.path.join("share", package_name, "launch"), glob("launch/*.py")),
         (os.path.join("share", package_name, "description"), glob("description/*.xacro")),
         (os.path.join("share", package_name, "worlds"), glob("worlds/*.world")),
+        (os.path.join("share", package_name, "worlds"), glob("worlds/*.world.in")),
         (os.path.join("share", package_name, "config"), glob("config/*.yaml")),
+        (os.path.join("share", package_name, "models", "dnn"), glob("models/dnn/*")),
+        (
+            os.path.join("share", package_name, "worlds", "models", "person_photo_model"),
+            glob("worlds/models/person_photo_model/*.config")
+            + glob("worlds/models/person_photo_model/*.sdf"),
+        ),
+        (
+            os.path.join(
+                "share", package_name, "worlds", "models", "person_photo_model",
+                "materials", "scripts",
+            ),
+            glob("worlds/models/person_photo_model/materials/scripts/*"),
+        ),
+        (
+            os.path.join(
+                "share", package_name, "worlds", "models", "person_photo_model",
+                "materials", "textures",
+            ),
+            glob("worlds/models/person_photo_model/materials/textures/*"),
+        ),
     ],
     install_requires=["setuptools"],
     zip_safe=True,

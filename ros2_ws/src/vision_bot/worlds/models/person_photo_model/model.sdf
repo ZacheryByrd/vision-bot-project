@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="person_photo_model">
+    <static>true</static>
+    <link name="link">
+      <visual name="visual">
+        <!-- Thin box, not a plane: a plane's default orientation is
+             horizontal (ground-facing), and a box is simpler to stand
+             upright than reorienting a plane. Only the front/back faces
+             (the wide ones) matter -- the camera never sees the thin edges. -->
+        <!-- Scaled down from a realistic 1.7m: the robot's camera is low
+             (~6cm) and level, not tilted up, so a full adult height keeps
+             cropping out of frame at the distances this demo actually
+             drives through, especially as it gets close. Shrinking the
+             target instead of trying to tilt/reposition the camera (which
+             would also affect the red-box demo sharing this URDF) keeps
+             the whole figure comfortably in frame across the approach. -->
+        <geometry>
+          <box><size>0.02 0.521 1.0</size></box>
+        </geometry>
+        <material>
+          <script>
+            <uri>materials/scripts</uri>
+            <uri>materials/textures</uri>
+            <name>Person/Photo</name>
+          </script>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>

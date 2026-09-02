@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <world name="person_track_world">
+    <include><uri>model://ground_plane</uri></include>
+    <include><uri>model://sun</uri></include>
+
+    <!-- {MODEL_DIR} is substituted at launch time by dnn_follow_launch.py
+         with the absolute installed path to worlds/models/person_photo_model.
+         Deliberately NOT using the model:// scheme here: Gazebo Classic's
+         <include><uri>model://X</uri></include> resolution tries an online
+         model database (http://models.gazebosim.org) before/regardless of
+         local GAZEBO_MODEL_PATH, and that database is effectively dead --
+         confirmed by it hanging indefinitely (90s+, no response) during
+         development. A direct absolute path bypasses that lookup entirely. -->
+    <include>
+      <uri>{MODEL_DIR}</uri>
+      <pose>1.0 0 0.5 0 0 0</pose>
+    </include>
+
+    <physics type="ode">
+      <real_time_update_rate>1000.0</real_time_update_rate>
+    </physics>
+  </world>
+</sdf>

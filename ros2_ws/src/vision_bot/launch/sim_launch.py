@@ -58,6 +58,13 @@ def generate_launch_description():
     sat_low_arg = DeclareLaunchArgument("target_sat_low", default_value="120")
     val_low_arg = DeclareLaunchArgument("target_val_low", default_value="80")
     min_area_arg = DeclareLaunchArgument("min_contour_area", default_value="200")
+    # DNN backend -- see perception_node.py / dnn_follow_launch.py. Defaults
+    # keep the HSV backend active; dnn_follow_launch.py overrides these.
+    detector_backend_arg = DeclareLaunchArgument("detector_backend", default_value="hsv")
+    dnn_prototxt_arg = DeclareLaunchArgument("dnn_prototxt_path", default_value="")
+    dnn_model_arg = DeclareLaunchArgument("dnn_model_path", default_value="")
+    dnn_class_id_arg = DeclareLaunchArgument("dnn_target_class_id", default_value="15")
+    dnn_confidence_arg = DeclareLaunchArgument("dnn_confidence_threshold", default_value="0.5")
     # Control tuning -- see motor_control_node.py. Defaults match the
     # red-box demo (approach-and-stop). The line-following demo overrides
     # stop_area_fraction to effectively disable stopping (drive continuously)
@@ -128,6 +135,11 @@ def generate_launch_description():
             "target_sat_low": int_param("target_sat_low"),
             "target_val_low": int_param("target_val_low"),
             "min_contour_area": int_param("min_contour_area"),
+            "detector_backend": LaunchConfiguration("detector_backend"),
+            "dnn_prototxt_path": LaunchConfiguration("dnn_prototxt_path"),
+            "dnn_model_path": LaunchConfiguration("dnn_model_path"),
+            "dnn_target_class_id": int_param("dnn_target_class_id"),
+            "dnn_confidence_threshold": float_param("dnn_confidence_threshold"),
         }],
     )
 
@@ -151,6 +163,11 @@ def generate_launch_description():
         sat_low_arg,
         val_low_arg,
         min_area_arg,
+        detector_backend_arg,
+        dnn_prototxt_arg,
+        dnn_model_arg,
+        dnn_class_id_arg,
+        dnn_confidence_arg,
         angular_gain_arg,
         base_speed_arg,
         stop_area_arg,

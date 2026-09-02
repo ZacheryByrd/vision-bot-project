@@ -103,6 +103,16 @@ nodes, same topics, just a different world + HSV threshold + control gains
 (passed as launch arguments; see that file's docstring for what changed and
 why). No other steps differ.
 
+For a demo using a real trained model instead of color thresholding --
+detecting an actual "person" class via a pretrained MobileNet-SSD (OpenCV's
+`cv2.dnn`) rather than a hand-picked HSV range -- launch `dnn_follow_launch.py`.
+Same approach-and-stop behavior as the red-box demo, same nodes, same
+topics; only `perception_node`'s `detector_backend` parameter changes. See
+that file's docstring for why the target is a real photo of a person
+textured onto a flat plane rather than a 3D humanoid model -- the obvious
+approach (primitives: box torso, sphere head) gets exactly 0.0 confidence
+from a real-world-trained detector.
+
 **Terminal 2 -- drive it manually / inspect topics:**
 
 ```powershell
@@ -193,3 +203,13 @@ panel (connection state, detection offset, `/cmd_vel`) updating in real time.
   zero manual intervention. This is the plan's "full lap/loop" definition-of-done
   item; the red-box demo intentionally stays approach-and-stop rather than
   becoming a third variant of the same thing.
+- DNN detection variant added (`dnn_follow_launch.py`, a pretrained
+  MobileNet-SSD recognizing an actual "person" class instead of a color
+  range) and verified: consistent ~0.98 confidence, clean approach, and a
+  stable stop at the target distance with zero drift across 6+ consecutive
+  pose samples. Getting here required discovering that flat-shaded 3D
+  primitives get 0.0 confidence from a real-world-trained detector --
+  texturing a real photo onto a flat plane instead fixed it (~0.8-0.98
+  confidence) -- and that the model needed to be scaled down from a
+  realistic 1.7m, since the rover's low, level, non-tilting camera kept
+  cropping a full adult height out of frame at approach distance.

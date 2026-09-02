@@ -1,0 +1,13 @@
+material Person/Photo
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture person.png
+      }
+    }
+  }
+}
