@@ -3,9 +3,9 @@ project(vision_bot_nav)
 
 find_package(ament_cmake REQUIRED)
 
-# Launch files, robot model, worlds, and configs.
+# Launch files, robot model, worlds, configs, and saved maps.
 install(
-  DIRECTORY config launch rviz urdf worlds
+  DIRECTORY config launch maps rviz urdf worlds
   DESTINATION share/${PROJECT_NAME}
 )
 

@@ -3,7 +3,8 @@ nav_sim.launch.py
 =================
 v2 simulation bring-up: Gazebo Classic with the navigation world, the
 vision_bot_nav robot model (v1 rover + lidar + IMU), robot_state_publisher,
-and twist_mux as the single owner of the drive command.
+the EKF (owner of odom -> base_link), and twist_mux as the single owner of
+the drive command. slam.launch.py and the Nav2 launch build on this file.
 
 Run with:
     ros2 launch vision_bot_nav nav_sim.launch.py              # GUI (VcXsrv)
@@ -126,6 +127,19 @@ def generate_launch_description():
         remappings=[("cmd_vel_out", "cmd_vel")],
     )
 
+    # EKF: fuses wheel odometry and the IMU gyro; the only publisher of
+    # odom -> base_link, and of odometry/filtered.
+    ekf = Node(
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        output="screen",
+        parameters=[
+            os.path.join(pkg_share, "config", "ekf.yaml"),
+            {"use_sim_time": sim_time},
+        ],
+    )
+
     # Lowest-priority zero input, so the robot stops when every real source
     # has timed out (see scripts/idle_stop.py).
     idle_stop = Node(
@@ -182,6 +196,7 @@ def generate_launch_description():
         PushRosNamespace(namespace),
         robot_state_publisher,
         spawn_entity,
+        ekf,
         twist_mux,
         idle_stop,
         perception,

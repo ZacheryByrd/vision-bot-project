@@ -22,6 +22,16 @@
   <xacro:property name="wheel_width" value="0.026"/>
   <xacro:property name="wheel_separation" value="0.16"/>
 
+  <!-- Effective track width for the drive plugin (v2 only; the wheel joints
+       stay 0.16 m apart). Gazebo's cylinder-on-plane contact touches the
+       floor at each wheel's outer rim, so the robot turns as if the wheels
+       were 0.16 + 0.026 = 0.186 m apart. Measured: with the plugin set to
+       0.16, commanded turn rates of 1.0, 0.5, and -1.0 rad/s produced true
+       rates of 0.860, 0.432, and -0.860 rad/s (0.16 / 0.861 = 0.186), while
+       straight-line distance matched within 0.3%. Setting the plugin to the
+       effective value is the same calibration a real robot gets (UMBmark). -->
+  <xacro:property name="wheel_separation_effective" value="${wheel_separation + wheel_width}"/>
+
   <!-- ===== v1 rover (copied from vision_bot.urdf.xacro) ===== -->
 
   <link name="base_link">
@@ -84,6 +94,17 @@
     <child link="caster_wheel"/>
     <origin xyz="-0.08 0 ${-(wheel_radius - 0.015)}" rpy="0 0 0"/>
   </joint>
+
+  <!-- Second change from v1: a near-frictionless caster. The caster is a
+       rigid sphere welded to the chassis; with Gazebo's default friction
+       (mu = 1) it is dragged sideways on every turn in place, the wheels
+       slip, and measured over one commanded revolution the robot turned
+       295 degrees while wheel odometry reported 338. A real ball caster
+       rolls, so it resists almost nothing. -->
+  <gazebo reference="caster_wheel">
+    <mu1>0.01</mu1>
+    <mu2>0.01</mu2>
+  </gazebo>
 
   <link name="camera_link">
     <visual><geometry><box size="0.02 0.04 0.02"/></geometry></visual>
@@ -211,7 +232,7 @@
     <plugin name="diff_drive" filename="libgazebo_ros_diff_drive.so">
       <left_joint>left_wheel_joint</left_joint>
       <right_joint>right_wheel_joint</right_joint>
-      <wheel_separation>${wheel_separation}</wheel_separation>
+      <wheel_separation>${wheel_separation_effective}</wheel_separation>
       <wheel_diameter>${wheel_radius*2}</wheel_diameter>
       <command_topic>cmd_vel</command_topic>
       <odometry_topic>odom</odometry_topic>
@@ -229,6 +250,19 @@
       <update_rate>30</update_rate>
       <joint_name>left_wheel_joint</joint_name>
       <joint_name>right_wheel_joint</joint_name>
+    </plugin>
+
+    <!-- Ground truth: Gazebo's exact pose of base_link in the world frame,
+         as nav_msgs/Odometry on ground_truth/pose. Used only by the
+         benchmark scripts to score odometry, the EKF, and AMCL; nothing in
+         the navigation stack subscribes to it. -->
+    <plugin name="ground_truth" filename="libgazebo_ros_p3d.so">
+      <ros>
+        <remapping>odom:=ground_truth/pose</remapping>
+      </ros>
+      <body_name>base_link</body_name>
+      <frame_name>world</frame_name>
+      <update_rate>50</update_rate>
     </plugin>
   </gazebo>
 

@@ -1,7 +1,9 @@
-# vision_bot v2 RViz config. Fixed frame is base_link in Task 1 because
-# nothing publishes odom -> base_link until the EKF arrives in Task 2.
+# vision_bot v2 RViz config. Fixed frame is map: slam_toolbox (mapping) or
+# AMCL (navigation) provides map -> odom, the EKF odom -> base_link. With
+# nav_sim.launch.py alone there is no map frame; switch Fixed Frame to odom.
 # The lidar publishes best-effort (sensor QoS); a reliable subscription
-# would receive nothing, hence the LaserScan reliability setting.
+# would receive nothing, hence the LaserScan reliability setting. Maps are
+# published transient-local, hence the Map durability setting.
 Panels:
   - Class: rviz_common/Displays
     Name: Displays
@@ -16,6 +18,19 @@ Visualization Manager:
       Plane Cell Count: 12
       Reference Frame: <Fixed Frame>
       Color: 160; 160; 164
+      Value: true
+    - Class: rviz_default_plugins/Map
+      Name: Map
+      Enabled: true
+      Alpha: 0.8
+      Color Scheme: map
+      Draw Behind: true
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: map
       Value: true
     - Class: rviz_default_plugins/RobotModel
       Name: RobotModel
@@ -54,7 +69,7 @@ Visualization Manager:
       Value: true
   Global Options:
     Background Color: 40; 40; 40
-    Fixed Frame: base_link
+    Fixed Frame: map
     Frame Rate: 30
   Tools:
     - Class: rviz_default_plugins/Interact
