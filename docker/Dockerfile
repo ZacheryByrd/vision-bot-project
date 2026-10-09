@@ -23,6 +23,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     xvfb \
     && rm -rf /var/lib/apt/lists/*
 
+# v2 navigation stack: SLAM, EKF localization, Nav2 (includes map_server and
+# AMCL), and the velocity mux. Separate layer so the v1 layer above stays
+# cached. Names verified with `apt-cache policy ros-humble-<pkg>`; see
+# docs/DEPENDENCIES.md. rviz2 and tf2_tools already ship with desktop-full.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ros-humble-slam-toolbox \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
+    ros-humble-robot-localization \
+    ros-humble-twist-mux \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN echo "source /opt/ros/humble/setup.bash" >> /root/.bashrc && \
     echo "if [ -f /workspace/ros2_ws/install/setup.bash ]; then source /workspace/ros2_ws/install/setup.bash; fi" >> /root/.bashrc
 
