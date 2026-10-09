@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<!--
+  nav_world: enclosed 10 x 10 m navigation world for vision_bot v2.
+
+  Layout (world frame, metres; the robot spawns at the origin facing +x):
+    - Outer walls: square from (-5, -5) to (5, 5).
+    - NW room: x -5..-1.2, y 1..5. Doorway on its east side, x = -1.2, y 1.0..2.4.
+    - SE room: x 1.5..5, y -5..-1. Doorway on its north side, y = -1, x 1.5..2.7.
+    - East divider at x = 1.5 with a doorway at y -1.0..0.4 and an opening
+      north of y = 3.2; a stub wall at y = 3.2 makes a corridor up there.
+    - SW alcove: wall at x = -2.5 from the south wall to y = -2.5.
+    - Six obstacles (three boxes, three cylinders), all different sizes and
+      none placed symmetrically, so no two places look alike to the lidar.
+
+  Walls are 0.5 m tall and boxes 0.4 m, all above the 0.083 m scan plane.
+  Wall and obstacle geometry is also read by scripts/scan_overlay.py, which
+  understands static models with box and cylinder collisions.
+-->
+<sdf version="1.6">
+  <world name="nav_world">
+    <include><uri>model://ground_plane</uri></include>
+    <include><uri>model://sun</uri></include>
+
+    <model name="walls">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="link">
+        <!-- outer -->
+        <collision name="north_c"><pose>0 5.0 0.25 0 0 0</pose><geometry><box><size>10.2 0.1 0.5</size></box></geometry></collision>
+        <visual name="north_v"><pose>0 5.0 0.25 0 0 0</pose><geometry><box><size>10.2 0.1 0.5</size></box></geometry></visual>
+        <collision name="south_c"><pose>0 -5.0 0.25 0 0 0</pose><geometry><box><size>10.2 0.1 0.5</size></box></geometry></collision>
+        <visual name="south_v"><pose>0 -5.0 0.25 0 0 0</pose><geometry><box><size>10.2 0.1 0.5</size></box></geometry></visual>
+        <collision name="east_c"><pose>5.0 0 0.25 0 0 0</pose><geometry><box><size>0.1 10.2 0.5</size></box></geometry></collision>
+        <visual name="east_v"><pose>5.0 0 0.25 0 0 0</pose><geometry><box><size>0.1 10.2 0.5</size></box></geometry></visual>
+        <collision name="west_c"><pose>-5.0 0 0.25 0 0 0</pose><geometry><box><size>0.1 10.2 0.5</size></box></geometry></collision>
+        <visual name="west_v"><pose>-5.0 0 0.25 0 0 0</pose><geometry><box><size>0.1 10.2 0.5</size></box></geometry></visual>
+        <!-- NW room: south wall (y = 1.0, x -5.0..-1.2) and east wall (x = -1.2, y 2.4..5.0) -->
+        <collision name="nw_south_c"><pose>-3.1 1.0 0.25 0 0 0</pose><geometry><box><size>3.8 0.1 0.5</size></box></geometry></collision>
+        <visual name="nw_south_v"><pose>-3.1 1.0 0.25 0 0 0</pose><geometry><box><size>3.8 0.1 0.5</size></box></geometry></visual>
+        <collision name="nw_east_c"><pose>-1.2 3.7 0.25 0 0 0</pose><geometry><box><size>0.1 2.6 0.5</size></box></geometry></collision>
+        <visual name="nw_east_v"><pose>-1.2 3.7 0.25 0 0 0</pose><geometry><box><size>0.1 2.6 0.5</size></box></geometry></visual>
+        <!-- East divider: x = 1.5, y -5.0..-1.0 and y 0.4..3.2 -->
+        <collision name="div_south_c"><pose>1.5 -3.0 0.25 0 0 0</pose><geometry><box><size>0.1 4.0 0.5</size></box></geometry></collision>
+        <visual name="div_south_v"><pose>1.5 -3.0 0.25 0 0 0</pose><geometry><box><size>0.1 4.0 0.5</size></box></geometry></visual>
+        <collision name="div_north_c"><pose>1.5 1.8 0.25 0 0 0</pose><geometry><box><size>0.1 2.8 0.5</size></box></geometry></collision>
+        <visual name="div_north_v"><pose>1.5 1.8 0.25 0 0 0</pose><geometry><box><size>0.1 2.8 0.5</size></box></geometry></visual>
+        <!-- SE room north wall: y = -1.0, x 2.7..5.0 -->
+        <collision name="se_north_c"><pose>3.85 -1.0 0.25 0 0 0</pose><geometry><box><size>2.3 0.1 0.5</size></box></geometry></collision>
+        <visual name="se_north_v"><pose>3.85 -1.0 0.25 0 0 0</pose><geometry><box><size>2.3 0.1 0.5</size></box></geometry></visual>
+        <!-- NE corridor stub: y = 3.2, x 1.5..3.5 -->
+        <collision name="ne_stub_c"><pose>2.5 3.2 0.25 0 0 0</pose><geometry><box><size>2.0 0.1 0.5</size></box></geometry></collision>
+        <visual name="ne_stub_v"><pose>2.5 3.2 0.25 0 0 0</pose><geometry><box><size>2.0 0.1 0.5</size></box></geometry></visual>
+        <!-- SW alcove: x = -2.5, y -5.0..-2.5 -->
+        <collision name="sw_alcove_c"><pose>-2.5 -3.75 0.25 0 0 0</pose><geometry><box><size>0.1 2.5 0.5</size></box></geometry></collision>
+        <visual name="sw_alcove_v"><pose>-2.5 -3.75 0.25 0 0 0</pose><geometry><box><size>0.1 2.5 0.5</size></box></geometry></visual>
+      </link>
+    </model>
+
+    <model name="box_a">
+      <static>true</static>
+      <pose>-3.6 3.2 0.2 0 0 0.4</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.6 0.4 0.4</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.6 0.4 0.4</size></box></geometry>
+          <material><ambient>0.2 0.3 0.7 1</ambient><diffuse>0.2 0.3 0.7 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="box_b">
+      <static>true</static>
+      <pose>3.8 -3.2 0.2 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>0.5 0.5 0.4</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>0.5 0.5 0.4</size></box></geometry>
+          <material><ambient>0.2 0.6 0.3 1</ambient><diffuse>0.2 0.6 0.3 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="box_c">
+      <static>true</static>
+      <pose>-0.8 -3.2 0.2 0 0 0.8</pose>
+      <link name="link">
+        <collision name="c"><geometry><box><size>1.0 0.3 0.4</size></box></geometry></collision>
+        <visual name="v"><geometry><box><size>1.0 0.3 0.4</size></box></geometry>
+          <material><ambient>0.7 0.5 0.1 1</ambient><diffuse>0.7 0.5 0.1 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="cyl_a">
+      <static>true</static>
+      <pose>3.4 1.4 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><cylinder><radius>0.25</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v"><geometry><cylinder><radius>0.25</radius><length>0.5</length></cylinder></geometry>
+          <material><ambient>0.6 0.2 0.6 1</ambient><diffuse>0.6 0.2 0.6 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="cyl_b">
+      <static>true</static>
+      <pose>-3.9 -1.2 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v"><geometry><cylinder><radius>0.15</radius><length>0.5</length></cylinder></geometry>
+          <material><ambient>0.1 0.6 0.6 1</ambient><diffuse>0.1 0.6 0.6 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <model name="cyl_c">
+      <static>true</static>
+      <pose>0.0 3.6 0.25 0 0 0</pose>
+      <link name="link">
+        <collision name="c"><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry></collision>
+        <visual name="v"><geometry><cylinder><radius>0.35</radius><length>0.5</length></cylinder></geometry>
+          <material><ambient>0.6 0.6 0.1 1</ambient><diffuse>0.6 0.6 0.1 1</diffuse></material></visual>
+      </link>
+    </model>
+
+    <physics type="ode">
+      <real_time_update_rate>1000.0</real_time_update_rate>
+    </physics>
+  </world>
+</sdf>

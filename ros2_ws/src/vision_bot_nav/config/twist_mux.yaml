@@ -1,0 +1,39 @@
+# twist_mux: the single owner of the drive command (v2 spec invariant 1).
+# Each velocity source publishes to its own topic; twist_mux forwards the
+# highest-priority input that has published within its timeout and remaps
+# its output (cmd_vel_out) to cmd_vel, the topic the diff-drive plugin reads.
+# Format follows the installed twist_mux 4.3.0 config/twist_mux_topics.yaml;
+# message type is geometry_msgs/msg/Twist on Humble.
+#
+# Priorities: a human at the keyboard beats everything; v1 line following
+# beats Nav2. A source that stops publishing loses control after 0.5 s.
+#
+# "idle" is a fourth input, below the three real sources: idle_stop.py
+# publishes a zero Twist on it at 10 Hz. twist_mux only forwards a command
+# when an input publishes, and the Gazebo diff-drive plugin holds its last
+# command forever, so without it the robot kept driving after every source
+# stopped (measured with scripts/mux_check.py; docs/DECISIONS.md #12).
+
+# "/**" instead of "twist_mux": a plain node-name key only matches /twist_mux,
+# so under namespace:=robot1 the node got no topics at all. Only twist_mux
+# loads this file, so the wildcard is safe.
+/**:
+  ros__parameters:
+    use_sim_time: true
+    topics:
+      teleop:
+        topic   : cmd_vel_teleop
+        timeout : 0.5
+        priority: 100
+      line_follow:
+        topic   : cmd_vel_line
+        timeout : 0.5
+        priority: 20
+      navigation:
+        topic   : cmd_vel_nav
+        timeout : 0.5
+        priority: 10
+      idle:
+        topic   : cmd_vel_idle
+        timeout : 0.5
+        priority: 1

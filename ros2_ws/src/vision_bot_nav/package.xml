@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>vision_bot_nav</name>
+  <version>0.1.0</version>
+  <description>
+    vision_bot v2 navigation: the robot model with lidar and IMU, a walled
+    navigation world, the twist_mux velocity arbitration config, and the
+    launch files that bring them up. The v1 package is used unchanged.
+  </description>
+  <maintainer email="you@example.com">Zach</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <!-- scripts/idle_stop.py -->
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+
+  <exec_depend>gazebo_ros</exec_depend>
+  <exec_depend>gazebo_plugins</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>twist_mux</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>teleop_twist_keyboard</exec_depend>
+  <!-- v1 perception + motor control, started only with line_follow:=true -->
+  <exec_depend>vision_bot</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
