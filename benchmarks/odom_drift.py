@@ -68,10 +68,16 @@ def _heading_error_deg(estimate, truth):
 
 
 def _git_commit():
-    """Short HEAD hash, flagged when the working tree has uncommitted changes."""
+    """Short HEAD hash, flagged when the working tree has uncommitted changes.
+
+    core.autocrlf=input: the repo is a Windows checkout (CRLF working files)
+    seen by Linux git in the container, which would otherwise report every
+    CRLF file as modified.
+    """
     def git(*args):
-        return subprocess.run(["git", "-c", "safe.directory=*", *args], capture_output=True,
-                              text=True, cwd=RESULTS.parent, check=True).stdout.strip()
+        return subprocess.run(["git", "-c", "safe.directory=*", "-c", "core.autocrlf=input",
+                               *args], capture_output=True, text=True, cwd=RESULTS.parent,
+                              check=True).stdout.strip()
     try:
         head = git("rev-parse", "--short", "HEAD")
         dirty = git("status", "--porcelain", "--untracked-files=no")

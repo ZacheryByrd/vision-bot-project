@@ -11,6 +11,7 @@ out, so "no active source" means "stopped".
 
 import rclpy
 from geometry_msgs.msg import Twist
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
 
@@ -31,7 +32,8 @@ def main():
     node = IdleStop()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
+        # Ctrl-C, or ros2 launch shutting the context down: a normal stop.
         pass
     node.destroy_node()
     rclpy.try_shutdown()
