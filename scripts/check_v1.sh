@@ -88,9 +88,16 @@ done
 [ -z "$missing" ] || fail "nodes not up after ${V1_TIMEOUT_S}s:$missing"
 log "nodes up: $V1_NODES"
 
-rate=$(timeout 10 ros2 topic hz "$V1_CAMERA_TOPIC" 2>/dev/null \
-    | awk '/average rate:/ {r=$3} END {print r}')
-[ -n "$rate" ] || fail "no messages on $V1_CAMERA_TOPIC"
+# The nodes start immediately, but the camera only publishes once Gazebo has
+# spawned the robot, which can take a while on a loaded machine. Keep
+# sampling for up to V1_TIMEOUT_S instead of giving it one 10 s window.
+rate=""
+deadline=$((SECONDS + V1_TIMEOUT_S))
+while [ -z "$rate" ] && [ "$SECONDS" -lt "$deadline" ]; do
+    rate=$(timeout 10 ros2 topic hz "$V1_CAMERA_TOPIC" 2>/dev/null \
+        | awk '/average rate:/ {r=$3} END {print r}')
+done
+[ -n "$rate" ] || fail "no messages on $V1_CAMERA_TOPIC within ${V1_TIMEOUT_S}s"
 log "$V1_CAMERA_TOPIC publishing at ${rate} Hz"
 
 log "PASS"
