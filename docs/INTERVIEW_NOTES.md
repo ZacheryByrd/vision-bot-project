@@ -86,3 +86,30 @@ The Docker base image ships both simulators, so "what is installed" does not ans
 | No TF warnings | launch log | none; one inherited, harmless KDL inertia warning (DECISIONS #18) |
 | Line input drives; teleop overrides | `scripts/mux_check.py` (root namespace and `/robot1`) | all 5 phases pass in both |
 | v1 still works | `scripts/check_v1.sh` | passes |
+
+---
+
+## Gate 2: Ground truth, EKF, SLAM map, drift benchmark (2026-10-08)
+
+### What was built
+- **Ground truth** (`ground_truth/pose`, Gazebo p3d plugin): the robot's exact pose, used only to score estimates.
+- **EKF** (`config/ekf.yaml`, robot_localization): fuses wheel speed and turn rate with the IMU gyro's turn rate; the only publisher of `odom -> base_link`. Runs in every mode from `nav_sim.launch.py`.
+- **SLAM** (`launch/slam.launch.py`, slam_toolbox online async from the installed defaults) and the saved map `maps/nav_world.{yaml,pgm}`.
+- **Benchmarks** (`benchmarks/`): `metrics.py` (tested), `route.py` + `drive_route.py` (scripted "teleop" that steers from ground truth), `odom_drift.py` (22.8 m loop, raw odometry vs EKF vs truth). **Gate tool** `scripts/map_check.py`.
+
+### What broke and how it was diagnosed
+1. **Raw odometry was 97 degrees off after two laps.** A spin test (command exactly one revolution, compare truth, wheel odometry, gyro) showed the robot turning 295 degrees while the wheels claimed 338. Two causes: the caster ball had full friction and was dragged sideways (fixed: near-frictionless, like a real ball caster), and, the bigger one, measured turn rates were a constant 0.86x the command at every speed while straight lines were exact. 0.16 / 0.86 = 0.186 = wheel separation + wheel width: Gazebo's cylinder contact touches the floor at the wheel rims. Setting the drive plugin's track width to the measured 0.186 m made turns exact. This is effective-wheelbase calibration, the same thing UMBmark does on real robots.
+2. **No artificial noise was needed.** The plan said to add noise if odometry were nearly perfect. After calibration it still drifts tens of centimetres over 21.6 m from real (simulated) wheel slip when the chassis keeps turning as the wheels brake at the end of each turn.
+3. **The first map missed the corner behind a box** (unknown cells). The exploration route was extended around it.
+4. **Back-to-back simulator launches in one container failed** (the old gzserver had not released its port). Each launch now gets its own Gazebo port and teardown waits for gzserver to exit; the affected batch was rerun.
+
+### Results (each traces to a file in `benchmarks/results/` or `docs/images/`)
+| Drift run (commit 30524e4, 21.6 m loop) | Raw odometry mean / final error | Raw final heading | EKF mean / final error | EKF final heading |
+|---|---|---|---|---|
+| odom_drift_20261009_043135 | 0.502 / 0.527 m | +36.1 deg | 0.037 / 0.006 m | +2.0 deg |
+| odom_drift_20261009_043429 | 0.568 / 0.661 m | +37.6 deg | 0.091 / 0.052 m | +3.6 deg |
+| odom_drift_20261009_043714 | 0.658 / 0.629 m | +41.4 deg | 0.077 / 0.069 m | +2.6 deg |
+
+- Map: 2608 of 2608 occupied cells within 0.1 m of a modeled wall or obstacle (median 0.015 m), `scripts/map_check.py`.
+- TF during SLAM: `map -> odom` (slam_toolbox) `-> base_link` (EKF) `-> sensors` (robot_state_publisher), one parent per frame.
+- Why the EKF wins: the gyro measures turn rate directly and is far more trusted (variance 4e-8) than wheel odometry's turn rate (1e-3), so heading stays right and position follows.
