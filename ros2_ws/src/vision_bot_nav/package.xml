@@ -36,6 +36,7 @@
   <exec_depend>nav2_velocity_smoother</exec_depend>
   <exec_depend>nav2_msgs</exec_depend>
   <exec_depend>nav2_rviz_plugins</exec_depend>
+  <exec_depend>rclcpp_components</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
   <!-- v1 perception + motor control, started only with line_follow:=true -->
