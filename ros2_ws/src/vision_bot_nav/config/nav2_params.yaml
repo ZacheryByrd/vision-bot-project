@@ -147,48 +147,40 @@ controller_server:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.15  # v2: was 0.25, longer than this 0.2 m robot
       yaw_goal_tolerance: 0.25
-    # DWB parameters
+    # v2: Regulated Pure Pursuit replaces the default DWB controller (tuning
+    # round 2, docs/TUNING.md). DWB stalled at the NW doorway U-turn: its
+    # goal-attraction critics pulled toward the end of the local path, past
+    # the wall end, while its path critics pulled along the arc. RPP steers
+    # toward a lookahead point on the global path and, when the path is more
+    # than rotate_to_heading_min_angle off the robot's heading, turns in place
+    # first. Values are the plugin's declared Humble defaults (read from a
+    # running controller_server) except the three marked v2.
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: False  # v2: was True; debug output costs CPU
-      min_vel_x: 0.0
-      min_vel_y: 0.0
-      max_vel_x: 0.26
-      max_vel_y: 0.0
-      max_vel_theta: 1.0
-      min_speed_xy: 0.0
-      max_speed_xy: 0.26
-      min_speed_theta: 0.0
-      # Add high threshold velocity for turtlebot 3 issue.
-      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
-      acc_lim_x: 2.5
-      acc_lim_y: 0.0
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
-      decel_lim_y: 0.0
-      decel_lim_theta: -3.2
-      vx_samples: 20
-      vy_samples: 5
-      vtheta_samples: 20
-      sim_time: 1.7
-      linear_granularity: 0.05
-      angular_granularity: 0.025
-      transform_tolerance: 0.2
-      xy_goal_tolerance: 0.15  # v2: was 0.25, longer than this 0.2 m robot
-      trans_stopped_velocity: 0.25
-      short_circuit_trajectory_evaluation: True
-      stateful: True
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
-      RotateToGoal.lookahead_time: -1.0
+      plugin: "nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController"
+      desired_linear_vel: 0.26  # v2: was 0.5; this robot's and the velocity smoother's limit
+      lookahead_dist: 0.6
+      min_lookahead_dist: 0.3
+      max_lookahead_dist: 0.9
+      lookahead_time: 1.5
+      use_velocity_scaled_lookahead_dist: false
+      rotate_to_heading_angular_vel: 1.0  # v2: was 1.8; max_vel_theta and the smoother's limit
+      use_rotate_to_heading: true
+      rotate_to_heading_min_angle: 0.785
+      max_angular_accel: 3.2
+      allow_reversing: false
+      transform_tolerance: 0.1
+      use_interpolation: true
+      use_collision_detection: true
+      max_allowed_time_to_collision_up_to_carrot: 1.0
+      use_regulated_linear_velocity_scaling: true
+      regulated_linear_scaling_min_radius: 0.9
+      regulated_linear_scaling_min_speed: 0.13  # v2: was 0.25, half the default 0.5 m/s; same ratio of 0.26
+      use_cost_regulated_linear_velocity_scaling: true
+      cost_scaling_dist: 0.6
+      cost_scaling_gain: 1.0
+      inflation_cost_scaling_factor: 3.0
+      approach_velocity_scaling_dist: 0.6
+      min_approach_linear_velocity: 0.05
 
 local_costmap:
   local_costmap:
