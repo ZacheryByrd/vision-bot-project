@@ -55,3 +55,43 @@ def test_relative_to_rotates_into_origin_frame():
 def test_relative_to_wraps_yaw():
     rel = relative_to(Pose2D(0.0, 0.0, 3.0), Pose2D(0.0, 0.0, -3.0))
     assert rel.yaw == pytest.approx(2 * math.pi - 6.0)
+
+
+# --- Task 3: goal benchmark summary -------------------------------------
+
+from metrics import GoalResult, GoalSummary, summarize_goals  # noqa: E402
+
+
+def _goal(goal_id, success, time_s=10.0, error=0.1, recoveries=0):
+    return GoalResult(goal_id=goal_id, success=success, time_s=time_s, path_length_m=1.0,
+                      final_error_m=error, recoveries=recoveries)
+
+
+def test_summary_counts_success_rate():
+    results = [_goal("a", True), _goal("b", True), _goal("c", False), _goal("d", True)]
+    summary = summarize_goals(results)
+    assert summary.n == 4
+    assert summary.success_rate == pytest.approx(0.75)
+
+
+def test_means_use_successes_only():
+    results = [_goal("a", True, time_s=10.0, error=0.1), _goal("b", True, time_s=20.0, error=0.3),
+               _goal("c", False, time_s=999.0, error=9.0)]
+    summary = summarize_goals(results)
+    assert summary.mean_time_s == pytest.approx(15.0)
+    assert summary.mean_final_error_m == pytest.approx(0.2)
+
+
+def test_recoveries_count_every_goal():
+    results = [_goal("a", True, recoveries=1), _goal("b", False, recoveries=3)]
+    assert summarize_goals(results).total_recoveries == 4
+
+
+def test_all_failed_gives_zero_means():
+    summary = summarize_goals([_goal("a", False, time_s=50.0)])
+    assert (summary.n, summary.success_rate, summary.mean_time_s) == (1, 0.0, 0.0)
+
+
+def test_empty_results():
+    assert summarize_goals([]) == GoalSummary(n=0, success_rate=0.0, mean_time_s=0.0,
+                                              mean_final_error_m=0.0, total_recoveries=0)

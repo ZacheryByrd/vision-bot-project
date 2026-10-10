@@ -1,0 +1,19 @@
+# Nav2 goal benchmark (benchmarks/nav_goals.py). Goals are driven in order,
+# each from wherever the previous one ended, starting at the spawn pose
+# (0, 0) facing +x. Coordinates are in the map frame, which equals the
+# nav_world world frame because mapping started at the world origin; yaw is
+# radians. Every goal is at least 0.4 m from walls and obstacles (layout in
+# ros2_ws/src/vision_bot_nav/worlds/nav_world.world), and consecutive goals
+# are in different rooms so most legs go through a doorway.
+goals:
+  - {id: g01_east_doorway, x: 2.3, y: -0.3, yaw: 0.0}
+  - {id: g02_se_room, x: 3.0, y: -4.0, yaw: -1.57}
+  - {id: g03_east_area, x: 4.2, y: 2.3, yaw: 1.57}
+  - {id: g04_ne_corridor, x: 2.5, y: 4.2, yaw: 3.14}
+  - {id: g05_north_centre, x: 0.8, y: 2.0, yaw: -1.57}
+  - {id: g06_nw_room, x: -2.6, y: 4.3, yaw: 3.14}
+  - {id: g07_nw_room_south, x: -4.2, y: 1.8, yaw: -1.57}
+  - {id: g08_west, x: -3.0, y: -0.5, yaw: -1.57}
+  - {id: g09_sw_alcove, x: -3.8, y: -3.8, yaw: 3.14}
+  - {id: g10_south_centre, x: 0.5, y: -4.2, yaw: 0.0}
+  - {id: g11_home, x: 0.0, y: 0.0, yaw: 0.0}

@@ -18,7 +18,6 @@ Writes benchmarks/results/odom_drift_<timestamp>.{csv,md,png}.
 import argparse
 import csv
 import math
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -29,6 +28,7 @@ from rclpy.qos import qos_profile_sensor_data
 
 from drive_route import RouteDriver, make_node
 from metrics import position_errors, relative_to
+from provenance import git_commit
 from route import ROUTES, pose_from_odometry, route_length
 
 RESULTS = Path(__file__).resolve().parent / "results"
@@ -65,25 +65,6 @@ def _record(route_name, timeout_s):
 def _heading_error_deg(estimate, truth):
     return math.degrees(math.atan2(math.sin(estimate.yaw - truth.yaw),
                                    math.cos(estimate.yaw - truth.yaw)))
-
-
-def _git_commit():
-    """Short HEAD hash, flagged when the working tree has uncommitted changes.
-
-    core.autocrlf=input: the repo is a Windows checkout (CRLF working files)
-    seen by Linux git in the container, which would otherwise report every
-    CRLF file as modified.
-    """
-    def git(*args):
-        return subprocess.run(["git", "-c", "safe.directory=*", "-c", "core.autocrlf=input",
-                               *args], capture_output=True, text=True, cwd=RESULTS.parent,
-                              check=True).stdout.strip()
-    try:
-        head = git("rev-parse", "--short", "HEAD")
-        dirty = git("status", "--porcelain", "--untracked-files=no")
-    except (OSError, subprocess.CalledProcessError):
-        return "unknown"
-    return f"{head} (+ uncommitted changes)" if dirty else head
 
 
 def _plot(path, truth, odom, ekf, times, err_odom, err_ekf):
@@ -166,7 +147,7 @@ def main():
         f"- Odometry error model: {args.label}.",
         f"- Samples: {len(samples)} at 10 Hz of sim time. Error = xy distance from ground truth,"
         " each path relative to its own start pose.",
-        f"- Code: commit `{_git_commit()}`, `benchmarks/odom_drift.py`.",
+        f"- Code: commit `{git_commit()}`, `benchmarks/odom_drift.py`.",
         "",
         *table,
         "",
