@@ -54,8 +54,8 @@ bt_navigator:
     global_frame: map
     robot_base_frame: base_link
     odom_topic: odometry/filtered  # v2: EKF output, not raw wheel odometry
-    bt_loop_duration: 10
-    default_server_timeout: 20
+    bt_loop_duration: 20  # v2: was 10 ms; 100 Hz ticks overran 2150 times in the baseline run
+    default_server_timeout: 200  # v2: was 20 ms; under CPU load servers took longer to ack (24 timeouts, each a recovery)
     wait_for_service_timeout: 1000
     # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
@@ -121,7 +121,7 @@ bt_navigator_navigate_to_pose_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: True
-    controller_frequency: 20.0
+    controller_frequency: 10.0  # v2: was 20 Hz; 727 missed cycles in the baseline, 10 Hz is ample at 0.26 m/s
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -145,12 +145,12 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.15  # v2: was 0.25, longer than this 0.2 m robot
       yaw_goal_tolerance: 0.25
     # DWB parameters
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: True
+      debug_trajectory_details: False  # v2: was True; debug output costs CPU
       min_vel_x: 0.0
       min_vel_y: 0.0
       max_vel_x: 0.26
@@ -174,7 +174,7 @@ controller_server:
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.15  # v2: was 0.25, longer than this 0.2 m robot
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
@@ -205,20 +205,17 @@ local_costmap:
       # v2: was robot_radius 0.22 (TurtleBot3). Footprint from the URDF: chassis
       # x -0.10..0.10 (camera to 0.11), wheels to y +-0.093.
       footprint: "[[0.11, 0.095], [0.11, -0.095], [-0.10, -0.095], [-0.10, 0.095]]"
-      plugins: ["voxel_layer", "inflation_layer"]
+      # v2: was ["voxel_layer", "inflation_layer"]. A 2D lidar gives no height
+      # information, so the 3D voxel grid only cost CPU; the 2D obstacle layer
+      # (same as the global costmap's) marks and clears the same cells.
+      plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
         inflation_radius: 0.55
-      voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        publish_voxel_map: True
-        origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 16
-        max_obstacle_height: 2.0
-        mark_threshold: 0
         observation_sources: scan
         scan:
           topic: /scan
