@@ -10,7 +10,8 @@ scores it against ground truth:
     path_length_m   distance the robot actually travelled (ground truth)
     final_error_m   ground-truth distance from the robot to the goal point
     recoveries      Nav2's number_of_recoveries feedback for the goal
-The CSV also records AMCL's own position error when each goal ends.
+The CSV also records AMCL's position error at its last update before each
+goal ended, measured against ground truth at that update's timestamp.
 
 Writes benchmarks/results/nav_goals_<timestamp>.{csv,md}.
     python3 benchmarks/nav_goals.py --label "baseline: installed defaults"
@@ -21,6 +22,7 @@ import csv
 import math
 import sys
 import time
+from collections import deque
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -58,6 +60,11 @@ def path_length(points):
     return sum(math.dist(a, b) for a, b in zip(points, points[1:]))
 
 
+def nearest_by_time(samples, t):
+    """The (t, ...) sample whose time is closest to t, or None if there are none."""
+    return min(samples, key=lambda s: abs(s[0] - t), default=None)
+
+
 def _run(goals, timeout_s):
     """Drive every goal; returns a list of (GoalResult, extras dict)."""
     import rclpy
@@ -72,17 +79,27 @@ def _run(goals, timeout_s):
 
     rclpy.init()
     node = make_node("nav_goals")
-    state = {"truth": None, "amcl": None, "track": None, "recoveries": 0}
+    state = {"truth": None, "amcl_error": None, "track": None, "recoveries": 0}
+    truth_history = deque(maxlen=1000)   # (stamp, x, y): 20 s at 50 Hz
+
+    def stamp(msg):
+        return msg.header.stamp.sec + msg.header.stamp.nanosec * 1e-9
 
     def on_truth(msg):
         p = msg.pose.pose.position
         state["truth"] = (p.x, p.y)
+        truth_history.append((stamp(msg), p.x, p.y))
         if state["track"] is not None:
             state["track"].append((p.x, p.y))
 
     def on_amcl(msg):
+        # AMCL publishes only after a filter update (every update_min_d /
+        # update_min_a of motion), so compare with ground truth at the
+        # estimate's own timestamp, not with where the robot is now.
         p = msg.pose.pose.position
-        state["amcl"] = (p.x, p.y)
+        truth = nearest_by_time(truth_history, stamp(msg))
+        if truth is not None and abs(truth[0] - stamp(msg)) < 0.1:
+            state["amcl_error"] = math.dist((p.x, p.y), truth[1:])
 
     def on_feedback(fb):
         state["recoveries"] = max(state["recoveries"], fb.feedback.number_of_recoveries)
@@ -136,13 +153,13 @@ def _run(goals, timeout_s):
                 spin_until(cancel.done, 15.0)
         elapsed = now() - t0
         spin_until(lambda: False, 1.0)   # let the last truth/AMCL messages arrive
-        truth, amcl = state["truth"], state["amcl"]
+        truth, amcl_error = state["truth"], state["amcl_error"]
         res = GoalResult(goal_id=goal.goal_id, success=success, time_s=elapsed,
                          path_length_m=path_length(state["track"]),
                          final_error_m=math.dist(truth, (goal.x, goal.y)),
                          recoveries=state["recoveries"])
         extras = {"status": status_name,
-                  "amcl_error_m": math.dist(amcl, truth) if amcl else float("nan")}
+                  "amcl_error_m": amcl_error if amcl_error is not None else float("nan")}
         state["track"] = None
         results.append((res, extras))
         print(f"{goal.goal_id:<20} {status_name:<10} {elapsed:6.1f} s  "

@@ -39,3 +39,15 @@ def test_path_length_sums_segments():
 
 def test_path_length_of_one_point_is_zero():
     assert path_length([(1.0, 1.0)]) == 0.0
+
+
+def test_nearest_by_time_picks_the_closest_sample():
+    from nav_goals import nearest_by_time
+    samples = [(1.0, "a"), (2.0, "b"), (3.0, "c")]
+    assert nearest_by_time(samples, 2.4) == (2.0, "b")
+    assert nearest_by_time(samples, 2.6) == (3.0, "c")
+
+
+def test_nearest_by_time_of_nothing_is_none():
+    from nav_goals import nearest_by_time
+    assert nearest_by_time([], 1.0) is None
