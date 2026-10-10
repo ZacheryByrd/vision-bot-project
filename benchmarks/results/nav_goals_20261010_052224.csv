@@ -1,0 +1,12 @@
+goal_id,x,y,yaw,success,status,time_s,path_length_m,final_error_m,amcl_error_m,recoveries
+g01_east_doorway,2.3,-0.3,0.0,True,succeeded,10.00,2.177,0.151,0.020,0
+g02_se_room,3.0,-4.0,-1.57,True,succeeded,19.10,3.834,0.047,0.096,0
+g03_east_area,4.2,2.3,1.57,True,succeeded,33.40,7.394,0.086,0.124,0
+g04_ne_corridor,2.5,4.2,3.14,True,succeeded,12.60,2.904,0.214,0.116,0
+g05_north_centre,0.8,2.0,-1.57,True,succeeded,14.50,3.345,0.184,0.054,0
+g06_nw_room,-2.6,4.3,3.14,True,succeeded,23.90,5.051,0.031,0.169,0
+g07_nw_room_south,-4.2,1.8,-1.57,True,succeeded,17.80,3.263,0.095,0.132,0
+g08_west,-3.0,-0.5,-1.57,True,succeeded,32.00,6.919,0.009,0.099,0
+g09_sw_alcove,-3.8,-3.8,3.14,True,succeeded,15.50,3.347,0.088,0.097,0
+g10_south_centre,0.5,-4.2,0.0,True,succeeded,31.60,6.759,0.085,0.122,0
+g11_home,0.0,0.0,0.0,True,succeeded,20.60,4.094,0.112,0.015,0
