@@ -113,3 +113,41 @@ The Docker base image ships both simulators, so "what is installed" does not ans
 - Map: 2608 of 2608 occupied cells within 0.1 m of a modeled wall or obstacle (median 0.015 m), `scripts/map_check.py`.
 - TF during SLAM: `map -> odom` (slam_toolbox) `-> base_link` (EKF) `-> sensors` (robot_state_publisher), one parent per frame.
 - Why the EKF wins: the gyro measures turn rate directly and is far more trusted (variance 4e-8) than wheel odometry's turn rate (1e-3), so heading stays right and position follows.
+
+---
+
+## Gate 3: Nav2 on the saved map (2026-10-09)
+
+### What was built
+- **`nav2.launch.py`**: the simulation plus map_server and AMCL (localization on the saved map; AMCL owns `map -> odom`) and the Nav2 servers (planner, controller, behavior tree navigator, recoveries, velocity smoother), all as components in one process.
+- **`nav2_params.yaml`**: the installed Humble defaults with every change marked and explained in `docs/TUNING.md`.
+- **Goal benchmark** (`benchmarks/nav_goals.py`, `goals.yaml`): 11 goals through every room and doorway, each scored against ground truth (success, time, distance driven, final error, recoveries, AMCL error).
+- **Checks**: `mux_check.py --nav-goal` (teleop overrides Nav2, Nav2 resumes), a goal sent the way RViz's 2D Goal Pose tool sends it, and a recorded RViz GIF.
+
+### Why these choices
+- **Every Nav2 velocity goes through twist_mux.** The stock bringup sends the smoothed controller output, and the recovery behaviors (spin, back up), straight to the drive topic. That would let Nav2 bypass the priority scheme, so a human at the keyboard could not take over during a recovery. Here everything Nav2 sends enters the mux on `cmd_vel_nav`.
+- **Tune by measurement, one round at a time.** Start from the installed defaults, run the 11-goal benchmark, read the log for why things went wrong, change only what the evidence points at, rerun.
+
+### What broke and how it was diagnosed
+1. **35 recoveries on the defaults, all CPU starvation.** Nothing was wrong with the plans; the log showed the behavior tree giving up after waiting the default 20 ms for the controller to acknowledge a path (24 times), and 727 missed controller cycles. Container CPU is shared with Gazebo. Longer acknowledgement timeout, 10 Hz controller, 2D obstacle layer instead of a 3D voxel grid (the lidar is 2D), debug output off: recoveries fell to 16, and the goal tolerance went from 0.25 m (longer than the robot) to 0.15 m.
+2. **One goal kept failing at a doorway (DWB local minimum).** `g08_west` leaves a room through a doorway and has to U-turn around the end of the room's wall. Recording the robot's true path and every velocity command showed it sat in the doorway for 83 s, 76% of the time turning in place with the direction flipping 69 times. DWB, the default controller, scores sampled trajectories with several critics; the "go toward the goal" critics were pulling toward the end of the path it could see (which lies past the wall end) while the "follow the path" critics pulled along the arc. They cancelled. Switching to Regulated Pure Pursuit, which just chases a point a short distance ahead on the path and turns in place first when that point is far off its heading, fixed it: 11 of 11 goals, zero recoveries, and that leg went from aborting after 171 s to 32 s.
+3. **A launch argument leaked into Gazebo.** Naming the Nav2 parameter file argument `params_file` also handed it to Gazebo, whose launch file has an argument of the same name; launch arguments are visible to included launch files. Renamed to `nav2_params`.
+4. **A one-in-twelve startup hang.** Nav2's lifecycle manager once waited forever for the smoother server to answer "configure". It never recurred in 8 deliberate restarts, so the cause is not proven (likely a lost service reply between processes). Running Nav2 as components in one process, the stock Humble default, removes those cross-process calls and also cut startup to 10 to 23 s.
+5. **My own measurement mistakes, caught and fixed.** The benchmark's AMCL-error column compared AMCL's last published estimate with where the robot is now, but AMCL only publishes after it has moved 0.25 m; it now compares at the estimate's timestamp. And the first teleop-over-Nav2 check sent its goal before Nav2's subscription was connected, so the goal was silently dropped; the check now waits for the connection.
+
+### Results (each traces to `benchmarks/results/`)
+| Run | Success | Mean time | Mean final error | Recoveries |
+|---|---|---|---|---|
+| Baseline (installed defaults, DWB) | 11/11 | 27.2 s | 0.182 m | 35 |
+| Round 1 (CPU settings, 0.15 m tolerance) | 10/11 | 22.6 s | 0.110 m | 16 |
+| Round 2 (composed, Regulated Pure Pursuit) | 11/11 | 21.0 s | 0.100 m | 0 |
+
+Final error is measured with ground truth, so it includes AMCL's localization error (0.02 to 0.17 m at goal ends) on top of the 0.15 m goal tolerance: Nav2 decides it has arrived using its own estimate of where it is.
+
+### Gate checks
+| Gate item | How | Result |
+|---|---|---|
+| A goal sent from RViz is reached | published on `goal_pose` (the message RViz's 2D Goal Pose tool sends), RViz recorded | "Goal succeeded"; `docs/images/gate3_rviz_goal_reached.png`, `docs/images/gate3_nav2_run.gif` |
+| 10+ goals benchmarked, real success rate recorded | `benchmarks/nav_goals.py`, 11 goals | 11/11, 0 recoveries (round 2); all three rounds kept in `benchmarks/results/` |
+| Teleop still overrides Nav2 | `scripts/mux_check.py --nav-goal -3.0 -0.5` | Nav2 driving (turning at -1.0 rad/s), then teleop's +0.8 rad/s reached the drive exactly (the opposite direction), then Nav2 resumed and finished the goal 0.046 m from it |
+| v1 still works | `scripts/check_v1.sh` | passes |
