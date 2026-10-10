@@ -132,6 +132,14 @@ def _run(phases, namespace, nav_goal=None):
     while time.monotonic() < settle:
         rclpy.spin_once(node, timeout_sec=0.05)
     if nav_goal is not None:
+        # A message published before the navigator's subscription is matched
+        # is simply dropped (seen at Gate 3: the goal never arrived). Wait for
+        # the match first, as `ros2 topic pub --once` does.
+        deadline = time.monotonic() + 30.0
+        while goal_pub.get_subscription_count() == 0 and time.monotonic() < deadline:
+            rclpy.spin_once(node, timeout_sec=0.05)
+        if goal_pub.get_subscription_count() == 0:
+            raise SystemExit("nothing subscribes to goal_pose: is nav2.launch.py running?")
         goal = PoseStamped()
         goal.header.frame_id = "map"
         goal.pose.position.x, goal.pose.position.y = nav_goal

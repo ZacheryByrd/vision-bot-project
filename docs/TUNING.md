@@ -55,7 +55,29 @@ Second reproduction (same commit, command trace kept: `benchmarks/results/diagno
 
 Diagnosis: a DWB local minimum at a U-turn. DWB sees only the part of the global plan inside its 3 x 3 m local costmap; here that part ends just past the wall end, so its goal-attraction critics (GoalAlign and GoalDist, weight 24 each) pull the robot south toward the wall end while its path critics (PathAlign and PathDist, weight 32 each) pull it east along the arc. The scores cancel, the robot dithers in place, and the progress checker trips.
 
-_Round 2 (the fix for the doorway stall) and the final numbers are added below once measured._
+## Round 2: Regulated Pure Pursuit instead of DWB
+
+`benchmarks/results/nav_goals_20261010_052224.md`, commit `d637cbe` (composed Nav2, round 1 kept).
+
+The diagnosis points at the controller, not the plan, the map, or localization, so the fix is the controller. Regulated Pure Pursuit (RPP, a stock Nav2 plugin) steers toward a lookahead point on the global path and has no goal-attraction term, so the truncated local path cannot pull it toward the wall end; when the path is more than 45 degrees off the robot's heading it turns in place first, which is exactly the doorway situation. Its parameters are the plugin's declared Humble defaults, read with `ros2 param dump` from a running `controller_server` (not written from memory), except:
+
+| Parameter | Default | Value | Why |
+|---|---|---|---|
+| `desired_linear_vel` | 0.5 m/s | 0.26 m/s | This robot's and the velocity smoother's speed limit. |
+| `rotate_to_heading_angular_vel` | 1.8 rad/s | 1.0 rad/s | `max_vel_theta` and the velocity smoother's limit; 1.8 would only be clipped. |
+| `regulated_linear_scaling_min_speed` | 0.25 m/s | 0.13 m/s | The default is half of the default 0.5 m/s cruise speed; at 0.26 it would leave no room to slow down on tight curves or near obstacles, so the same ratio is kept. |
+
+Result: **11 of 11 goals, 0 recoveries**; mean time 21.0 s; mean final error 0.100 m (ground truth). `g08_west` took 32.0 s and finished 0.009 m from the goal (round 1: aborted after 171 s and 15 recoveries; baseline: 107 s and 13 recoveries). CPU warnings in the log fell to 137 behavior-tree overruns (from 2150 in the baseline), with no missed controller cycles and no acknowledgement timeouts.
+
+## Summary
+
+| Run | Configuration | Success | Mean time | Mean final error | Recoveries |
+|---|---|---|---|---|---|
+| Baseline | installed defaults + required edits (DWB) | 11/11 | 27.2 s | 0.182 m | 35 |
+| Round 1 | + CPU-load settings, 0.15 m goal tolerance | 10/11 | 22.6 s | 0.110 m | 16 |
+| Round 2 | + composed Nav2, Regulated Pure Pursuit | 11/11 | 21.0 s | 0.100 m | 0 |
+
+Final error is the ground-truth distance from the robot to the goal point when Nav2 reported success, so it includes AMCL's localization error (0.02 to 0.17 m at goal ends in round 2, measured correctly) on top of the 0.15 m goal tolerance. Not tuned yet, if a later task needs tighter arrival: AMCL's sensor model and update thresholds.
 
 ## Measurement fix
 
