@@ -61,3 +61,38 @@ def test_phase_offset_by_t0():
     odom = [Sample(12.5, 0.2, 0.0)]
     assert evaluate_phase(LINE, t0=10.0, cmd=cmd, odom=odom).ok
     assert not evaluate_phase(LINE, t0=0.0, cmd=cmd, odom=odom).ok
+
+
+# --- Gate 3: Nav2 as an input ("expect=None" means "Nav2 is driving") -----
+
+NAV = Phase(name="nav driving", duration_s=4.0, inputs={}, expect=None)
+
+
+def test_nav_phase_passes_when_commands_flow_and_robot_moves():
+    cmd = [Sample(2.5, 0.22, -0.1), Sample(3.5, 0.24, 0.05)]
+    odom = [Sample(2.2, 0.2, 0.0), Sample(3.8, 0.21, 0.0)]
+    assert evaluate_phase(NAV, t0=0.0, cmd=cmd, odom=odom).ok
+
+
+def test_nav_phase_fails_without_commands():
+    odom = [Sample(2.2, 0.2, 0.0)]
+    assert not evaluate_phase(NAV, t0=0.0, cmd=[], odom=odom).ok
+
+
+def test_nav_phase_fails_on_zero_commands():
+    # The idle input's zeros are not Nav2 driving.
+    cmd = [Sample(2.5, 0.0, 0.0), Sample(3.5, 0.0, 0.0)]
+    odom = [Sample(2.2, 0.0, 0.0)]
+    assert not evaluate_phase(NAV, t0=0.0, cmd=cmd, odom=odom).ok
+
+
+def test_nav_phase_fails_when_robot_does_not_move():
+    cmd = [Sample(2.5, 0.2, 0.0)]
+    odom = [Sample(2.2, 0.0, 0.0), Sample(3.8, 0.0, 0.0)]
+    assert not evaluate_phase(NAV, t0=0.0, cmd=cmd, odom=odom).ok
+
+
+def test_turning_in_place_counts_as_moving():
+    cmd = [Sample(2.5, 0.0, 0.6)]
+    odom = [Sample(2.2, 0.0, 0.6)]
+    assert evaluate_phase(NAV, t0=0.0, cmd=cmd, odom=odom).ok
