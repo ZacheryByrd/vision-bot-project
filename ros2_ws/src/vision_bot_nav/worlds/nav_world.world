@@ -21,6 +21,17 @@
     <include><uri>model://ground_plane</uri></include>
     <include><uri>model://sun</uri></include>
 
+    <!-- Entity state services (/gazebo/get_entity_state, /gazebo/set_entity_state),
+         used by benchmarks/plugin_ab.py to put both robots at identical start
+         poses for every trial. update_rate limits its model/link state topics
+         to 1 Hz (the default publishes every physics step). -->
+    <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+      <ros>
+        <namespace>/gazebo</namespace>
+      </ros>
+      <update_rate>1.0</update_rate>
+    </plugin>
+
     <model name="walls">
       <static>true</static>
       <pose>0 0 0 0 0 0</pose>

@@ -200,7 +200,18 @@ local_costmap:
       # v2: was ["voxel_layer", "inflation_layer"]. A 2D lidar gives no height
       # information, so the 3D voxel grid only cost CPU; the 2D obstacle layer
       # (same as the global costmap's) marks and clears the same cells.
-      plugins: ["obstacle_layer", "inflation_layer"]
+      plugins: ["obstacle_layer", "robot_avoidance_layer", "inflation_layer"]  # v2: + robot_avoidance_layer
+      # v2: RobotAvoidanceLayer (vision_bot_plugins, Task 4). The other robots
+      # are invisible to this lidar (their chassis is below the scan plane),
+      # so their shared poses are drawn here instead. Listed before
+      # inflation_layer so the other robot's disk is inflated like any obstacle.
+      robot_avoidance_layer:
+        plugin: "vision_bot_plugins::RobotAvoidanceLayer"
+        enabled: True
+        robot_pose_topics: ["/robot2/amcl_pose"]
+        robot_radius: 0.15        # the other robot's circumscribed radius (0.145 m)
+        cost_scaling: 3.0         # same decay rate as inflation_layer
+        max_pose_age_s: 2.0       # a robot silent this long stops blocking paths
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
@@ -237,7 +248,7 @@ global_costmap:
       footprint: "[[0.11, 0.095], [0.11, -0.095], [-0.10, -0.095], [-0.10, 0.095]]"
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      plugins: ["static_layer", "obstacle_layer", "robot_avoidance_layer", "inflation_layer"]  # v2: + robot_avoidance_layer
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -255,6 +266,17 @@ global_costmap:
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
+      # v2: RobotAvoidanceLayer (vision_bot_plugins, Task 4). The other robots
+      # are invisible to this lidar (their chassis is below the scan plane),
+      # so their shared poses are drawn here instead. Listed before
+      # inflation_layer so the other robot's disk is inflated like any obstacle.
+      robot_avoidance_layer:
+        plugin: "vision_bot_plugins::RobotAvoidanceLayer"
+        enabled: True
+        robot_pose_topics: ["/robot2/amcl_pose"]
+        robot_radius: 0.15        # the other robot's circumscribed radius (0.145 m)
+        cost_scaling: 3.0         # same decay rate as inflation_layer
+        max_pose_age_s: 2.0       # a robot silent this long stops blocking paths
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
