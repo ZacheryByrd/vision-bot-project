@@ -112,6 +112,9 @@ def generate_launch_description():
             "-y", LaunchConfiguration("spawn_y"),
             "-z", LaunchConfiguration("spawn_z"),
             "-Y", LaunchConfiguration("spawn_yaw"),
+            # Default is 30 s. With the full Nav2 stack starting alongside it,
+            # gzserver took longer than that to offer /spawn_entity.
+            "-timeout", "120",
         ],
         output="screen",
     )
