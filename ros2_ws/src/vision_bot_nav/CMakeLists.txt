@@ -11,7 +11,7 @@ install(
 
 # Small helper nodes, run as `ros2 run vision_bot_nav <script>.py`.
 install(
-  PROGRAMS scripts/idle_stop.py
+  PROGRAMS scripts/idle_stop.py scripts/pose_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

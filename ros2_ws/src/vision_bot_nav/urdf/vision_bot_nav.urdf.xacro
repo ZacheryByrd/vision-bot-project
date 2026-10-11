@@ -106,6 +106,10 @@
     <mu2>0.01</mu2>
   </gazebo>
 
+  <!-- Camera (v1 line following). with_camera:=false drops it, and its
+       rendering cost, for the two-robot setup. -->
+  <xacro:arg name="with_camera" default="true"/>
+  <xacro:if value="$(arg with_camera)">
   <link name="camera_link">
     <visual><geometry><box size="0.02 0.04 0.02"/></geometry></visual>
   </link>
@@ -131,6 +135,7 @@
       </plugin>
     </sensor>
   </gazebo>
+  </xacro:if>
 
   <!-- ===== v2 additions ===== -->
 

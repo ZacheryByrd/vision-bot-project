@@ -6,7 +6,7 @@ plugin, as nav_world.world does). Spawns a second robot, "robot2": a box
 with this robot's footprint (0.20 x 0.19 x 0.066 m, below the 0.083 m lidar
 plane, so the lidar cannot see it, exactly like a real second vision_bot),
 moved by a planar_move plugin. Its true pose is republished as
-/robot2/amcl_pose at 10 Hz, standing in for its own localization.
+/robot2/shared_pose at 10 Hz, standing in for its own localization.
 
 Each trial puts both robots at the scenario's start poses (teleport, AMCL
 re-initialized, costmaps cleared), sends one NavigateToPose goal, and records
@@ -206,7 +206,7 @@ def _run(trials):
 
     node.create_subscription(Odometry, "ground_truth/pose", on_truth, qos_profile_sensor_data)
     node.create_subscription(Odometry, "/robot2/odom", on_r2, 10)
-    relay = node.create_publisher(PoseWithCovarianceStamped, "/robot2/amcl_pose", 10)
+    relay = node.create_publisher(PoseWithCovarianceStamped, "/robot2/shared_pose", 10)
     r2_cmd = node.create_publisher(Twist, "/robot2/cmd_vel", 10)
     init_pose = node.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
     r2_speed = {"v": 0.0}

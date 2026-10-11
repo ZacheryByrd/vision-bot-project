@@ -16,6 +16,10 @@
   <!-- scripts/idle_stop.py -->
   <exec_depend>rclpy</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
+  <!-- scripts/pose_publisher.py, launch/robot_params.py -->
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+  <exec_depend>rclcpp_components</exec_depend>
 
   <exec_depend>gazebo_ros</exec_depend>
   <exec_depend>gazebo_plugins</exec_depend>
@@ -39,7 +43,6 @@
   <exec_depend>nav2_rviz_plugins</exec_depend>
   <!-- RobotAvoidanceLayer, registered in config/nav2_params.yaml -->
   <exec_depend>vision_bot_plugins</exec_depend>
-  <exec_depend>rclcpp_components</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>teleop_twist_keyboard</exec_depend>
   <!-- v1 perception + motor control, started only with line_follow:=true -->

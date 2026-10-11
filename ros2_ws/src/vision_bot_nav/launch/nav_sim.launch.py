@@ -28,8 +28,8 @@ and block navigation (priority 10) forever (docs/DECISIONS.md #4). Its
         world:=$(ros2 pkg prefix vision_bot)/share/vision_bot/worlds/line_track.world \
         spawn_x:=2.3536 spawn_y:=0.3536 spawn_yaw:=1.9635
 
-`namespace` pushes the robot's ROS nodes and Gazebo plugins into a
-namespace. TF is not namespaced yet; two-robot TF trees come in Task 5.
+`namespace` puts the robot's nodes, Gazebo plugins, and TF tree (/tf -> <ns>/tf)
+into a namespace; multi_robot.launch.py starts two robots this way.
 """
 
 import os
@@ -39,16 +39,19 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration
-from launch_ros.actions import Node, PushRosNamespace
+from launch.substitutions import Command, LaunchConfiguration
+from launch_ros.actions import Node, PushRosNamespace, SetRemap
 from launch_ros.parameter_descriptions import ParameterValue
-import xacro
 
 
 def generate_launch_description():
     pkg_share = get_package_share_directory("vision_bot_nav")
     xacro_file = os.path.join(pkg_share, "urdf", "vision_bot_nav.urdf.xacro")
-    robot_description = xacro.process_file(xacro_file).toxml()
+    # with_camera:=false drops the camera (and its rendering cost) for the
+    # two-robot setup, where v1 line following is not used.
+    robot_description = ParameterValue(
+        Command(["xacro ", xacro_file, " with_camera:=", LaunchConfiguration("with_camera")]),
+        value_type=str)
 
     namespace = LaunchConfiguration("namespace")
     use_sim_time = LaunchConfiguration("use_sim_time")
@@ -74,6 +77,15 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "line_follow", default_value="false",
             description="Start v1 perception + motor control, feeding cmd_vel_line."),
+        DeclareLaunchArgument(
+            "start_gazebo", default_value="true",
+            description="Start gzserver/gzclient (false for every robot after the first)."),
+        DeclareLaunchArgument(
+            "entity", default_value="vision_bot",
+            description="Gazebo model name; unique per robot."),
+        DeclareLaunchArgument(
+            "with_camera", default_value="true",
+            description="Include the camera (needed for v1 line following)."),
         DeclareLaunchArgument("spawn_x", default_value="0.0"),
         DeclareLaunchArgument("spawn_y", default_value="0.0"),
         # Slightly above the floor so the wheels settle onto it instead of
@@ -92,6 +104,7 @@ def generate_launch_description():
             "world": LaunchConfiguration("world"),
             "gui": LaunchConfiguration("gui"),
         }.items(),
+        condition=IfCondition(LaunchConfiguration("start_gazebo")),
     )
 
     robot_state_publisher = Node(
@@ -106,7 +119,7 @@ def generate_launch_description():
         executable="spawn_entity.py",
         arguments=[
             "-topic", "robot_description",
-            "-entity", "vision_bot",
+            "-entity", LaunchConfiguration("entity"),
             "-robot_namespace", namespace,
             "-x", LaunchConfiguration("spawn_x"),
             "-y", LaunchConfiguration("spawn_y"),
@@ -195,8 +208,13 @@ def generate_launch_description():
         output="screen",
     )
 
+    # Everything below runs in the robot's namespace with its own TF tree:
+    # /tf and /tf_static become <namespace>/tf and <namespace>/tf_static (a
+    # no-op without a namespace), as in the installed nav2_bringup.
     robot = GroupAction([
         PushRosNamespace(namespace),
+        SetRemap(src="/tf", dst="tf"),
+        SetRemap(src="/tf_static", dst="tf_static"),
         robot_state_publisher,
         spawn_entity,
         ekf,

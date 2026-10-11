@@ -208,7 +208,7 @@ local_costmap:
       robot_avoidance_layer:
         plugin: "vision_bot_plugins::RobotAvoidanceLayer"
         enabled: True
-        robot_pose_topics: ["/robot2/amcl_pose"]
+        robot_pose_topics: ["/robot2/shared_pose"]  # set per robot by nav2.launch.py
         robot_radius: 0.15        # the other robot's circumscribed radius (0.145 m)
         cost_scaling: 3.0         # same decay rate as inflation_layer
         max_pose_age_s: 2.0       # a robot silent this long stops blocking paths
@@ -273,7 +273,7 @@ global_costmap:
       robot_avoidance_layer:
         plugin: "vision_bot_plugins::RobotAvoidanceLayer"
         enabled: True
-        robot_pose_topics: ["/robot2/amcl_pose"]
+        robot_pose_topics: ["/robot2/shared_pose"]  # set per robot by nav2.launch.py
         robot_radius: 0.15        # the other robot's circumscribed radius (0.145 m)
         cost_scaling: 3.0         # same decay rate as inflation_layer
         max_pose_age_s: 2.0       # a robot silent this long stops blocking paths
