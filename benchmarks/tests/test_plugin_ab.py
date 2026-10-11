@@ -98,3 +98,50 @@ def test_arrival_needs_success_and_true_position():
     failed = GoalResult("c", False, 10.0, 1.0, 0.05, 0)
     rows = [TrialRow("parked_doorway", 0, False, r, 0.5, "x") for r in (close, far, failed)]
     assert summarize_ab(rows)[("parked_doorway", False)].arrivals == 1
+
+
+def test_robot_io_without_namespace_matches_nav2_launch():
+    from plugin_ab import robot_io
+    io = robot_io("")
+    assert io.entity == "vision_bot"
+    assert io.truth == "ground_truth/pose"
+    assert io.initialpose == "initialpose"
+    assert io.navigate == "navigate_to_pose"
+    assert "global_costmap/clear_entirely_global_costmap" in io.clear
+    assert "local_costmap/local_costmap/set_parameters" in io.params
+
+
+def test_robot_io_with_namespace_uses_it_for_entity_topics_and_services():
+    from plugin_ab import robot_io
+    io = robot_io("robot2")
+    assert io.entity == "robot2"
+    assert io.truth == "/robot2/ground_truth/pose"
+    assert io.initialpose == "/robot2/initialpose"
+    assert io.navigate == "/robot2/navigate_to_pose"
+    assert set(io.clear) == {"/robot2/global_costmap/clear_entirely_global_costmap",
+                             "/robot2/local_costmap/clear_entirely_local_costmap"}
+    assert set(io.params) == {"/robot2/global_costmap/global_costmap/set_parameters",
+                              "/robot2/local_costmap/local_costmap/set_parameters"}
+
+
+def test_real_robot2_crosses_the_route_only_in_the_crossing_scenario():
+    assert SCENARIOS["parked_doorway"].robot2_goal is None
+    goal = SCENARIOS["crossing"].robot2_goal
+    start = make_trials(per_scenario=1, base_seed=0)[2].robot2_start   # a crossing trial
+    route_y = SCENARIOS["crossing"].start[1]
+    assert goal[0] == pytest.approx(start[0])           # straight south along x = 0.3
+    assert goal[1] < route_y < start[1]                 # from north of the route to south of it
+    assert goal[2] == pytest.approx(start[2])
+
+
+def test_robot2_arrivals_counts_its_own_goal_per_condition():
+    from plugin_ab import robot2_arrivals
+    r = GoalResult(goal_id="g", success=True, time_s=1.0, path_length_m=1.0,
+                   final_error_m=0.1, recoveries=0)
+    rows = [TrialRow("crossing", 0, True, r, 0.5, "succeeded", "succeeded"),
+            TrialRow("crossing", 1, True, r, 0.5, "succeeded", "cancelled at trial end"),
+            TrialRow("crossing", 0, False, r, 0.5, "succeeded", "succeeded"),
+            TrialRow("parked_doorway", 0, True, r, 0.5, "succeeded", "no goal")]
+    assert robot2_arrivals(rows, "crossing", True) == (1, 2)
+    assert robot2_arrivals(rows, "crossing", False) == (1, 1)
+    assert robot2_arrivals(rows, "parked_doorway", True) == (0, 1)

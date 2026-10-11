@@ -20,10 +20,19 @@ Scenarios:
     crossing        robot2 drives south at 0.15 m/s from (0.3, 0.6) after a
                     0-6 s delay; the robot drives (-2.0, -0.3) -> (2.4, -0.3).
 
+Two-robot mode (--robot1 robot1 --robot2 robot2, with multi_robot.launch.py
+running): robot2 is a second full vision_bot with its own Nav2, localization
+and RobotAvoidanceLayer, so nothing is spawned or relayed. Both robots are
+teleported and re-initialized each trial, the layer is switched on all four
+costmaps, and in the crossing scenario robot2 gets its own Nav2 goal south
+across the route after the seeded delay instead of a scripted drive (it is
+cancelled when the trial ends). In parked_doorway robot2 gets no goal.
+
 Metrics per condition: summarize_goals plus the minimum centre-to-centre
 distance between the robots and the number of contacts (< CONTACT_M).
-Writes benchmarks/results/plugin_ab_<timestamp>.{csv,md}.
+Writes benchmarks/results/plugin_ab_[2robots_]<timestamp>.{csv,md}.
     python3 benchmarks/plugin_ab.py --per-scenario 10
+    python3 benchmarks/plugin_ab.py --per-scenario 10 --robot1 robot1 --robot2 robot2
 """
 
 import argparse
@@ -37,6 +46,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from metrics import GoalResult, summarize_goals
+from nav_goals import ns_topic
 from provenance import git_commit
 
 HERE = Path(__file__).resolve().parent
@@ -60,12 +70,39 @@ class ScenarioSpec:
     timeout_s: float        # sim seconds
     robot2_speed: float     # m/s forward while driving (0 = parked)
     robot2_drive_s: float   # how long robot2 drives after its delay
+    robot2_goal: tuple = None   # two-robot mode: robot2's Nav2 goal after its delay
 
 
 SCENARIOS = {
     "parked_doorway": ScenarioSpec((0.0, -0.3, 0.0), (3.0, -0.3, 0.0), 90.0, 0.0, 0.0),
-    "crossing": ScenarioSpec((-2.0, -0.3, 0.0), (2.4, -0.3, 0.0), 75.0, 0.15, 25.0),
+    "crossing": ScenarioSpec((-2.0, -0.3, 0.0), (2.4, -0.3, 0.0), 75.0, 0.15, 25.0,
+                             (0.3, -2.0, -math.pi / 2)),
 }
+
+COSTMAPS = ("global_costmap", "local_costmap")
+
+
+@dataclass(frozen=True)
+class RobotIO:
+    """Gazebo entity and ROS names of one robot's Nav2 stack."""
+    entity: str
+    truth: str
+    initialpose: str
+    navigate: str
+    clear: tuple            # ClearEntireCostmap services
+    params: tuple           # costmap SetParameters services
+
+
+def robot_io(namespace):
+    """RobotIO for multi_robot.launch.py's robot <namespace>, or nav2.launch.py's if ""."""
+    return RobotIO(
+        entity=namespace.strip("/") or "vision_bot",
+        truth=ns_topic(namespace, "ground_truth/pose"),
+        initialpose=ns_topic(namespace, "initialpose"),
+        navigate=ns_topic(namespace, "navigate_to_pose"),
+        clear=tuple(ns_topic(namespace, f"{c}/clear_entirely_{c}") for c in COSTMAPS),
+        params=tuple(ns_topic(namespace, f"{c}/{c}/set_parameters") for c in COSTMAPS),
+    )
 
 
 @dataclass(frozen=True)
@@ -85,6 +122,7 @@ class TrialRow:
     result: GoalResult
     min_separation_m: float   # None if the tracks never overlapped in time
     status: str
+    robot2_status: str = ""   # two-robot mode: outcome of robot2's own goal
 
 
 @dataclass(frozen=True)
@@ -150,6 +188,12 @@ def summarize_ab(rows):
     return out
 
 
+def robot2_arrivals(rows, scenario, layer_enabled):
+    """(trials where robot2's own goal succeeded, trials) for one scenario and condition."""
+    group = [r for r in rows if r.scenario == scenario and r.layer_enabled == layer_enabled]
+    return sum(1 for r in group if r.robot2_status == "succeeded"), len(group)
+
+
 ROBOT2_SDF = """<sdf version='1.6'><model name='robot2'>
 <link name='base_link'>
   <inertial><mass>1.45</mass><inertia><ixx>0.01</ixx><iyy>0.01</iyy><izz>0.01</izz></inertia></inertial>
@@ -166,7 +210,7 @@ ROBOT2_SDF = """<sdf version='1.6'><model name='robot2'>
 </plugin></model></sdf>"""
 
 
-def _run(trials):
+def _run(trials, robot1="", robot2=""):
     import rclpy
     from action_msgs.msg import GoalStatus
     from gazebo_msgs.msg import EntityState
@@ -185,6 +229,11 @@ def _run(trials):
     rclpy.init()
     node = make_node("plugin_ab")
     st = {"r2": None, "truth": None, "rec": False, "t1": [], "t2": [], "recoveries": 0}
+    me = robot_io(robot1)
+    real = bool(robot2)          # robot2 is a full vision_bot with its own Nav2
+    other = robot_io(robot2) if real else None
+    names = {GoalStatus.STATUS_SUCCEEDED: "succeeded", GoalStatus.STATUS_ABORTED: "aborted",
+             GoalStatus.STATUS_CANCELED: "canceled"}
 
     def now():
         return node.get_clock().now().nanoseconds * 1e-9
@@ -204,30 +253,40 @@ def _run(trials):
             p = msg.pose.pose.position
             st["t2"].append((stamp(msg), p.x, p.y))
 
-    node.create_subscription(Odometry, "ground_truth/pose", on_truth, qos_profile_sensor_data)
-    node.create_subscription(Odometry, "/robot2/odom", on_r2, 10)
-    relay = node.create_publisher(PoseWithCovarianceStamped, "/robot2/shared_pose", 10)
-    r2_cmd = node.create_publisher(Twist, "/robot2/cmd_vel", 10)
-    init_pose = node.create_publisher(PoseWithCovarianceStamped, "initialpose", 10)
+    node.create_subscription(Odometry, me.truth, on_truth, qos_profile_sensor_data)
+    init_pose = node.create_publisher(PoseWithCovarianceStamped, me.initialpose, 10)
     r2_speed = {"v": 0.0}
+    if real:
+        node.create_subscription(Odometry, other.truth, on_r2, qos_profile_sensor_data)
+        init_pose2 = node.create_publisher(PoseWithCovarianceStamped, other.initialpose, 10)
+    else:
+        node.create_subscription(Odometry, "/robot2/odom", on_r2, 10)
+        relay = node.create_publisher(PoseWithCovarianceStamped, "/robot2/shared_pose", 10)
+        r2_cmd = node.create_publisher(Twist, "/robot2/cmd_vel", 10)
 
-    def tick():
-        if st["r2"] is not None:
-            msg = PoseWithCovarianceStamped()
-            msg.header.frame_id = "map"
-            msg.header.stamp = node.get_clock().now().to_msg()
-            msg.pose.pose = st["r2"].pose.pose
-            relay.publish(msg)
-        cmd = Twist()
-        cmd.linear.x = r2_speed["v"]
-        r2_cmd.publish(cmd)
+        def tick():
+            if st["r2"] is not None:
+                msg = PoseWithCovarianceStamped()
+                msg.header.frame_id = "map"
+                msg.header.stamp = node.get_clock().now().to_msg()
+                msg.pose.pose = st["r2"].pose.pose
+                relay.publish(msg)
+            cmd = Twist()
+            cmd.linear.x = r2_speed["v"]
+            r2_cmd.publish(cmd)
 
-    node.create_timer(0.1, tick)
+        node.create_timer(0.1, tick)
 
     def spin(seconds):
         end = time.monotonic() + seconds
         while time.monotonic() < end:
             rclpy.spin_once(node, timeout_sec=0.05)
+
+    def spin_until(done, wall_s):
+        end = time.monotonic() + wall_s
+        while not done() and time.monotonic() < end:
+            rclpy.spin_once(node, timeout_sec=0.05)
+        return done()
 
     def call(client, request, wall_s=30.0):
         if not client.wait_for_service(timeout_sec=wall_s):
@@ -240,15 +299,17 @@ def _run(trials):
 
     spawn = node.create_client(SpawnEntity, "/spawn_entity")
     set_state = node.create_client(SetEntityState, "/gazebo/set_entity_state")
-    clears = [node.create_client(ClearEntireCostmap, f"/{c}/clear_entirely_{c}")
-              for c in ("global_costmap", "local_costmap")]
-    params = [node.create_client(SetParameters, f"/{c}/{c}/set_parameters")
-              for c in ("global_costmap", "local_costmap")]
-    nav = ActionClient(node, NavigateToPose, "navigate_to_pose")
-    if not nav.wait_for_server(timeout_sec=120.0):
-        raise SystemExit("navigate_to_pose not available")
+    stacks = (me, other) if real else (me,)
+    clears = [node.create_client(ClearEntireCostmap, s) for io in stacks for s in io.clear]
+    params = [node.create_client(SetParameters, s) for io in stacks for s in io.params]
+    navs = [ActionClient(node, NavigateToPose, io.navigate) for io in stacks]
+    for client, io in zip(navs, stacks):
+        if not client.wait_for_server(timeout_sec=120.0):
+            raise SystemExit(f"{io.navigate} not available")
+    nav, nav2 = navs[0], navs[-1] if real else None
     spin(1.0)
-    call(spawn, SpawnEntity.Request(name="robot2", xml=ROBOT2_SDF))
+    if not real:
+        call(spawn, SpawnEntity.Request(name="robot2", xml=ROBOT2_SDF))
 
     def teleport(name, x, y, yaw):
         state = EntityState(name=name, reference_frame="world")
@@ -265,6 +326,36 @@ def _run(trials):
     def on_feedback(fb):
         st["recoveries"] = max(st["recoveries"], fb.feedback.number_of_recoveries)
 
+    def pose_msg(msg, x, y, yaw):
+        msg.header.frame_id = "map"
+        msg.header.stamp = node.get_clock().now().to_msg()
+        msg.pose.pose.position.x, msg.pose.pose.position.y = x, y
+        msg.pose.pose.orientation.z = math.sin(yaw / 2)
+        msg.pose.pose.orientation.w = math.cos(yaw / 2)
+        return msg
+
+    def nav_goal(x, y, yaw):
+        goal = NavigateToPose.Goal()
+        pose_msg(goal.pose, x, y, yaw)
+        return goal
+
+    def finish_robot2(r2):
+        """Outcome of robot2's goal at the end of a trial; cancels it if still running."""
+        if r2["send"] is None:
+            return "no goal"
+        spin_until(r2["send"].done, 10.0)
+        handle = r2["send"].result() if r2["send"].done() else None
+        if handle is None or not handle.accepted:
+            return "rejected"
+        if r2["result"] is None:
+            r2["result"] = handle.get_result_async()
+        if spin_until(r2["result"].done, 1.0):
+            code = r2["result"].result().status
+            return names.get(code, str(code))
+        cancel = handle.cancel_goal_async()
+        spin_until(cancel.done, 15.0)
+        return "cancelled at trial end"
+
     rows, layer_state = [], None
     for n, trial in enumerate(trials, start=1):
         spec = SCENARIOS[trial.scenario]
@@ -272,57 +363,52 @@ def _run(trials):
             set_layer(trial.layer_enabled)
             layer_state = trial.layer_enabled
         r2_speed["v"] = 0.0
-        teleport("vision_bot", *spec.start)
-        teleport("robot2", *trial.robot2_start)
-        initial = PoseWithCovarianceStamped()
-        initial.header.frame_id = "map"
-        initial.pose.pose.position.x, initial.pose.pose.position.y = spec.start[:2]
-        initial.pose.pose.orientation.z = math.sin(spec.start[2] / 2)
-        initial.pose.pose.orientation.w = math.cos(spec.start[2] / 2)
-        initial.pose.covariance[0] = initial.pose.covariance[7] = 0.01
-        initial.pose.covariance[35] = 0.01
+        teleport(me.entity, *spec.start)
+        teleport(other.entity if real else "robot2", *trial.robot2_start)
+        initials = [(init_pose, spec.start)]
+        if real:
+            initials.append((init_pose2, trial.robot2_start))
         for _ in range(3):
-            initial.header.stamp = node.get_clock().now().to_msg()
-            init_pose.publish(initial)
+            for publisher, pose in initials:
+                initial = pose_msg(PoseWithCovarianceStamped(), *pose)
+                initial.pose.covariance[0] = initial.pose.covariance[7] = 0.01
+                initial.pose.covariance[35] = 0.01
+                publisher.publish(initial)
             spin(0.5)
         spin(1.5)
         for client in clears:
             call(client, ClearEntireCostmap.Request())
         spin(2.0)
 
-        goal = NavigateToPose.Goal()
-        goal.pose.header.frame_id = "map"
-        goal.pose.header.stamp = node.get_clock().now().to_msg()
-        goal.pose.pose.position.x, goal.pose.pose.position.y = spec.goal[:2]
-        goal.pose.pose.orientation.z = math.sin(spec.goal[2] / 2)
-        goal.pose.pose.orientation.w = math.cos(spec.goal[2] / 2)
         st.update(rec=True, t1=[], t2=[], recoveries=0)
-        send = nav.send_goal_async(goal, feedback_callback=on_feedback)
-        end = time.monotonic() + 30.0
-        while not send.done() and time.monotonic() < end:
-            rclpy.spin_once(node, timeout_sec=0.05)
+        r2 = {"send": None, "result": None}     # robot2's own goal (two-robot mode)
+        send = nav.send_goal_async(nav_goal(*spec.goal), feedback_callback=on_feedback)
+        spin_until(send.done, 30.0)
         handle = send.result() if send.done() else None
         t0, status = now(), "rejected"
         if handle is not None and handle.accepted:
             result = handle.get_result_async()
             while not result.done() and now() - t0 < spec.timeout_s:
                 since_delay = now() - t0 - trial.robot2_delay_s
-                driving = 0.0 <= since_delay < spec.robot2_drive_s
-                r2_speed["v"] = spec.robot2_speed if driving else 0.0
+                if not real:
+                    driving = 0.0 <= since_delay < spec.robot2_drive_s
+                    r2_speed["v"] = spec.robot2_speed if driving else 0.0
+                elif spec.robot2_goal is not None and since_delay >= 0.0 and r2["send"] is None:
+                    r2["send"] = nav2.send_goal_async(nav_goal(*spec.robot2_goal))
+                elif r2["send"] is not None and r2["result"] is None and r2["send"].done() \
+                        and r2["send"].result().accepted:
+                    r2["result"] = r2["send"].result().get_result_async()
                 rclpy.spin_once(node, timeout_sec=0.05)
             if result.done():
                 code = result.result().status
-                status = {GoalStatus.STATUS_SUCCEEDED: "succeeded",
-                          GoalStatus.STATUS_ABORTED: "aborted",
-                          GoalStatus.STATUS_CANCELED: "canceled"}.get(code, str(code))
+                status = names.get(code, str(code))
             else:
                 status = "timeout"
                 cancel = handle.cancel_goal_async()
-                end = time.monotonic() + 15.0
-                while not cancel.done() and time.monotonic() < end:
-                    rclpy.spin_once(node, timeout_sec=0.05)
+                spin_until(cancel.done, 15.0)
         elapsed = now() - t0
         r2_speed["v"] = 0.0
+        robot2_status = finish_robot2(r2) if real else "scripted"
         spin(1.0)
         st["rec"] = False
         track = [(x, y) for _, x, y in st["t1"]]
@@ -333,13 +419,13 @@ def _run(trials):
             final_error_m=math.dist(st["truth"], spec.goal[:2]),
             recoveries=st["recoveries"])
         row = TrialRow(trial.scenario, trial.seed, trial.layer_enabled, result_row,
-                       min_separation(st["t1"], st["t2"]), status)
+                       min_separation(st["t1"], st["t2"]), status, robot2_status)
         rows.append(row)
         sep = "n/a" if row.min_separation_m is None else f"{row.min_separation_m:.3f} m"
         print(f"[{n}/{len(trials)}] {trial.scenario:<15} seed {trial.seed} "
               f"layer {'on ' if trial.layer_enabled else 'off'}  {status:<9} "
-              f"{elapsed:5.1f} s  min separation {sep}  recoveries {row.result.recoveries}",
-              flush=True)
+              f"{elapsed:5.1f} s  min separation {sep}  recoveries {row.result.recoveries}"
+              + (f"  robot2 {robot2_status}" if real else ""), flush=True)
 
     node.destroy_node()
     rclpy.shutdown()
@@ -357,21 +443,29 @@ def main():
                         help="trials per scenario per condition")
     parser.add_argument("--base-seed", type=int, default=0)
     parser.add_argument("--label", default="RobotAvoidanceLayer as in config/nav2_params.yaml")
+    parser.add_argument("--robot1", default="",
+                        help="namespace of the robot under test (multi_robot.launch.py)")
+    parser.add_argument("--robot2", default="",
+                        help="namespace of a real second robot; without it a box is spawned")
     args = parser.parse_args()
+    if bool(args.robot1) != bool(args.robot2):
+        parser.error("--robot1 and --robot2 go together (multi_robot.launch.py)")
+    real = bool(args.robot2)
 
     trials = make_trials(args.per_scenario, args.base_seed)
-    rows = _run(trials)
+    rows = _run(trials, args.robot1, args.robot2)
     trial_by_key = {(t.scenario, t.seed, t.layer_enabled): t for t in trials}
     summary = summarize_ab(rows)
 
     RESULTS.mkdir(exist_ok=True)
     stamp = time.strftime("%Y%m%d_%H%M%S")
-    base = RESULTS / f"plugin_ab_{stamp}"
+    base = RESULTS / (f"plugin_ab_2robots_{stamp}" if real else f"plugin_ab_{stamp}")
     with open(f"{base}.csv", "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["scenario", "seed", "layer_enabled", "robot2_x", "robot2_y", "robot2_yaw",
                     "robot2_delay_s", "status", "success", "time_s", "path_length_m",
-                    "final_error_m", "recoveries", "min_separation_m", "contact"])
+                    "final_error_m", "recoveries", "min_separation_m", "contact",
+                    "robot2_status"])
         for r in rows:
             t = trial_by_key[(r.scenario, r.seed, r.layer_enabled)]
             sep = r.min_separation_m
@@ -380,7 +474,7 @@ def main():
                         f"{r.result.time_s:.2f}", f"{r.result.path_length_m:.3f}",
                         f"{r.result.final_error_m:.3f}", r.result.recoveries,
                         "" if sep is None else f"{sep:.3f}",
-                        sep is not None and sep < CONTACT_M])
+                        sep is not None and sep < CONTACT_M, r.robot2_status])
 
     table = ["| Scenario | Layer | Nav2 success | Truly arrived | Mean time (s) "
              "| Mean final error (m) | Recoveries "
@@ -398,10 +492,25 @@ def main():
                 f"| {_fmt(s.goals.mean_time_s, '.1f')} | {_fmt(s.goals.mean_final_error_m, '.3f')} "
                 f"| {s.goals.total_recoveries} | {_fmt(s.mean_separation_m, '.3f')} "
                 f"| {_fmt(s.worst_separation_m, '.3f')} | {s.contacts}/{s.goals.n} |")
+    if real:
+        g = SCENARIOS["crossing"].robot2_goal
+        robot2_line = (
+            f"- robot2: a second vision_bot (`{args.robot2}`) with its own Nav2 and "
+            "RobotAvoidanceLayer, switched together with the robot under test "
+            f"(`{args.robot1}`). In crossing it is sent a Nav2 goal to ({g[0]}, {g[1]}) after "
+            "the seeded delay and cancelled when the trial ends; it reached that goal in "
+            + ", ".join("{}/{} trials with the layer {}".format(
+                *robot2_arrivals(rows, "crossing", on), "on" if on else "off")
+                for on in (False, True))
+            + ".")
+    else:
+        robot2_line = ("- robot2: a scripted box with this robot's footprint, its true pose "
+                       "relayed as `/robot2/shared_pose`.")
     md = "\n".join([
         f"# RobotAvoidanceLayer A/B, {stamp}",
         "",
         f"- Configuration: {args.label}.",
+        robot2_line,
         f"- {args.per_scenario} trials per scenario per condition, seeds {args.base_seed} to "
         f"{args.base_seed + args.per_scenario - 1}; identical robot2 placement and timing in "
         "both conditions; condition order alternates.",

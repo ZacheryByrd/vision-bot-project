@@ -6,3 +6,5 @@ dashboard/.next/
 dashboard/.env.local
 __pycache__/
 *.pyc
+# colcon writes log/ in the directory it runs from
+/log/

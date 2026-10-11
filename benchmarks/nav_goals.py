@@ -13,8 +13,10 @@ scores it against ground truth:
 The CSV also records AMCL's position error at its last update before each
 goal ended, measured against ground truth at that update's timestamp.
 
-Writes benchmarks/results/nav_goals_<timestamp>.{csv,md}.
+Writes benchmarks/results/nav_goals_[<namespace>_]<timestamp>.{csv,md}.
     python3 benchmarks/nav_goals.py --label "baseline: installed defaults"
+    python3 benchmarks/nav_goals.py --namespace robot2 --goals benchmarks/goals_robot2.yaml \
+        --label "two robots, robot1 parked"
 """
 
 import argparse
@@ -60,12 +62,18 @@ def path_length(points):
     return sum(math.dist(a, b) for a, b in zip(points, points[1:]))
 
 
+def ns_topic(namespace, name):
+    """name under a robot namespace (absolute), or unchanged without one."""
+    namespace = namespace.strip("/")
+    return f"/{namespace}/{name}" if namespace else name
+
+
 def nearest_by_time(samples, t):
     """The (t, ...) sample whose time is closest to t, or None if there are none."""
     return min(samples, key=lambda s: abs(s[0] - t), default=None)
 
 
-def _run(goals, timeout_s):
+def _run(goals, timeout_s, namespace=""):
     """Drive every goal; returns a list of (GoalResult, extras dict)."""
     import rclpy
     from action_msgs.msg import GoalStatus
@@ -104,9 +112,11 @@ def _run(goals, timeout_s):
     def on_feedback(fb):
         state["recoveries"] = max(state["recoveries"], fb.feedback.number_of_recoveries)
 
-    node.create_subscription(Odometry, "ground_truth/pose", on_truth, qos_profile_sensor_data)
-    node.create_subscription(PoseWithCovarianceStamped, "amcl_pose", on_amcl, 10)
-    client = ActionClient(node, NavigateToPose, "navigate_to_pose")
+    node.create_subscription(Odometry, ns_topic(namespace, "ground_truth/pose"), on_truth,
+                             qos_profile_sensor_data)
+    node.create_subscription(PoseWithCovarianceStamped, ns_topic(namespace, "amcl_pose"),
+                             on_amcl, 10)
+    client = ActionClient(node, NavigateToPose, ns_topic(namespace, "navigate_to_pose"))
 
     def now():
         return node.get_clock().now().nanoseconds * 1e-9
@@ -177,15 +187,17 @@ def main():
     parser.add_argument("--label", required=True, help="configuration under test")
     parser.add_argument("--goals", default=str(HERE / "goals.yaml"))
     parser.add_argument("--timeout", type=float, default=180.0, help="per goal, sim seconds")
+    parser.add_argument("--namespace", default="", help="robot namespace, e.g. robot1")
     args = parser.parse_args()
 
     goals = load_goals(Path(args.goals).read_text())
-    rows = _run(goals, args.timeout)
+    rows = _run(goals, args.timeout, args.namespace)
     summary = summarize_goals([r for r, _ in rows])
 
     RESULTS.mkdir(exist_ok=True)
     stamp = time.strftime("%Y%m%d_%H%M%S")
-    base = RESULTS / f"nav_goals_{stamp}"
+    robot = args.namespace.strip("/")
+    base = RESULTS / (f"nav_goals_{robot}_{stamp}" if robot else f"nav_goals_{stamp}")
     with open(f"{base}.csv", "w", newline="") as f:
         w = csv.writer(f)
         w.writerow(["goal_id", "x", "y", "yaw", "success", "status", "time_s",
@@ -204,6 +216,7 @@ def main():
         f"# Nav2 goal benchmark, {stamp}",
         "",
         f"- Configuration: {args.label}.",
+        f"- Robot: {robot or '(no namespace)'}.",
         f"- Goals: `{Path(args.goals).name}`, {summary.n} goals driven in order; "
         f"per-goal timeout {args.timeout:.0f} s of sim time.",
         f"- Code: commit `{git_commit()}`, `benchmarks/nav_goals.py`.",

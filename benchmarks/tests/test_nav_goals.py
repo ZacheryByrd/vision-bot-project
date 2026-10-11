@@ -33,6 +33,13 @@ def test_benchmark_file_has_at_least_ten_goals():
     assert len(load_goals(GOALS_FILE.read_text())) >= 10
 
 
+def test_robot2_goals_differ_only_in_home():
+    main = load_goals(GOALS_FILE.read_text())
+    robot2 = load_goals((GOALS_FILE.parent / "goals_robot2.yaml").read_text())
+    assert robot2[:-1] == main[:-1]
+    assert robot2[-1] == Goal("g11_home", -2.5, 0.0, 0.0)
+
+
 def test_path_length_sums_segments():
     assert path_length([(0.0, 0.0), (3.0, 4.0), (3.0, 0.0)]) == pytest.approx(9.0)
 
@@ -51,3 +58,10 @@ def test_nearest_by_time_picks_the_closest_sample():
 def test_nearest_by_time_of_nothing_is_none():
     from nav_goals import nearest_by_time
     assert nearest_by_time([], 1.0) is None
+
+
+def test_ns_topic_prefixes_only_when_namespaced():
+    from nav_goals import ns_topic
+    assert ns_topic("", "ground_truth/pose") == "ground_truth/pose"
+    assert ns_topic("robot1", "ground_truth/pose") == "/robot1/ground_truth/pose"
+    assert ns_topic("/robot2/", "amcl_pose") == "/robot2/amcl_pose"
