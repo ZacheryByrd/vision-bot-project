@@ -151,3 +151,34 @@ Final error is measured with ground truth, so it includes AMCL's localization er
 | 10+ goals benchmarked, real success rate recorded | `benchmarks/nav_goals.py`, 11 goals | 11/11, 0 recoveries (round 2); all three rounds kept in `benchmarks/results/` |
 | Teleop still overrides Nav2 | `scripts/mux_check.py --nav-goal -3.0 -0.5` | Nav2 driving (turning at -1.0 rad/s), then teleop's +0.8 rad/s reached the drive exactly (the opposite direction), then Nav2 resumed and finished the goal 0.046 m from it |
 | v1 still works | `scripts/check_v1.sh` | passes |
+
+---
+
+## Gate 4: RobotAvoidanceLayer, a custom C++ Nav2 costmap plugin (2026-10-10)
+
+### The problem it solves (measured, not assumed)
+The robots cannot see each other. The lidar scans a plane 0.083 m above the floor; the chassis top is at 0.063 m, and the lidar housing has no collision shape in the simulation. A box with this robot's footprint placed 0.9 m straight ahead of the lidar is invisible: the scan read 4.95 m, the wall behind it. Nav2's obstacle layer only marks what the lidar sees, so without help a robot will drive straight into another one.
+
+### What was built
+- **`vision_bot_plugins`** (C++17, ament_cmake): `RobotAvoidanceLayer`, a `nav2_costmap_2d::Layer` loaded by Nav2 through pluginlib. It subscribes to each other robot's pose topic (the type AMCL publishes), keeps the latest pose per robot under a mutex (subscriber callbacks and the costmap update run on different threads), skips poses older than 2 s (a robot that goes offline stops blocking paths), transforms each pose into the costmap's frame, and writes a lethal disk of the other robot's radius plus a cost that decays with distance.
+- **Pure cost math in its own library**, unit tested with gtest (8 tests): lethal (254) inside the radius, then `floor(252 * exp(-k * (d - r)))`, which starts at 252 so only the robot's own disk counts as certain collision (253 and above), never rises with distance, and reaches 0 at a computed influence radius used for the layer's update bounds.
+- **A launch test** that starts Nav2's standalone costmap with only this layer and checks it initializes and activates without errors.
+- **An A/B benchmark** (`benchmarks/plugin_ab.py`) with a second robot (a box with this robot's footprint, moved by a Gazebo plugin) in two scenarios, the layer off and on, same seeds.
+
+### How a costmap layer works (worth being able to explain)
+Each costmap cycle, the layered costmap asks every layer for the area it wants to change (`updateBounds`), resets the master grid inside the union of those areas, then asks each layer in order to write its costs (`updateCosts`). Two consequences shaped the code: the layer reports last cycle's area as well as this cycle's, or a robot's old position would never be erased after it moves; and it is listed before the inflation layer, so Nav2 inflates the other robot's disk by this robot's own size like any other obstacle.
+
+### What broke and how it was diagnosed
+1. **"Succeeded" while 0.8 m away.** In the first smoke run without the layer, the robot shoved past the invisible robot, the collision corrupted its localization, and Nav2 reported success while ground truth put it 0.80 m from the goal. The benchmark now reports "truly arrived" (Nav2 success and within 0.30 m by ground truth) next to Nav2's own success.
+2. **The launch test could not find the costmap.** Nav2's standalone costmap executable creates its node as `/costmap/costmap`, not `/costmap`, and does not create the "bond" heartbeat the lifecycle manager expects from Nav2 servers; the test names it correctly and turns bond checking off.
+
+### Results (`benchmarks/results/plugin_ab_20261010_065758.md`, 10 trials per scenario per condition)
+| Scenario | Layer | Nav2 success | Truly arrived | Recoveries | Mean min separation | Contacts |
+|---|---|---|---|---|---|---|
+| Parked in the doorway | off | 10/10 | 0/10 | 0 | 0.195 m | 10/10 |
+| Parked in the doorway | on | 10/10 | 10/10 | 0 | 0.438 m | 0/10 |
+| Crossing, robot2 does not yield | off | 10/10 | 10/10 | 0 | 0.239 m | 4/10 |
+| Crossing, robot2 does not yield | on | 6/10 | 5/10 | 133 | 0.257 m | 6/10 |
+
+- **Parked robot: the layer fixes the problem completely.** Without it, every run hit the invisible robot and none truly arrived; with it, no contacts and every run arrived, at a cost of 1.3 s.
+- **Crossing robot: the layer makes things worse, and why.** The layer draws where the other robot *is*, not where it is *going*. The robot drives toward the crossing point because the other robot is not in its way yet, sees it at the last moment, and stops in its path; the scripted robot2 never yields and hits it, and while the other robot's disk overlaps the robot's own position the planner cannot plan, hence the recoveries. Without the layer the robot simply keeps going and usually clears the crossing first. The fix is motion prediction (drawing the other robot's path a few seconds ahead); it was not added because it changes the layer's design and needs Zach's decision. In Task 5 both robots run the layer, so neither drives blind.
