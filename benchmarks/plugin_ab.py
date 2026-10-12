@@ -194,6 +194,16 @@ def robot2_arrivals(rows, scenario, layer_enabled):
     return sum(1 for r in group if r.robot2_status == "succeeded"), len(group)
 
 
+def set_map_pose(msg, x, y, yaw, stamp):
+    """Fill a PoseStamped (goal) or PoseWithCovarianceStamped (initial pose) in the map frame."""
+    msg.header.frame_id = "map"
+    msg.header.stamp = stamp
+    pose = getattr(msg.pose, "pose", msg.pose)     # PoseWithCovariance wraps the Pose
+    pose.position.x, pose.position.y = x, y
+    pose.orientation.z, pose.orientation.w = math.sin(yaw / 2), math.cos(yaw / 2)
+    return msg
+
+
 ROBOT2_SDF = """<sdf version='1.6'><model name='robot2'>
 <link name='base_link'>
   <inertial><mass>1.45</mass><inertia><ixx>0.01</ixx><iyy>0.01</iyy><izz>0.01</izz></inertia></inertial>
@@ -327,12 +337,7 @@ def _run(trials, robot1="", robot2=""):
         st["recoveries"] = max(st["recoveries"], fb.feedback.number_of_recoveries)
 
     def pose_msg(msg, x, y, yaw):
-        msg.header.frame_id = "map"
-        msg.header.stamp = node.get_clock().now().to_msg()
-        msg.pose.pose.position.x, msg.pose.pose.position.y = x, y
-        msg.pose.pose.orientation.z = math.sin(yaw / 2)
-        msg.pose.pose.orientation.w = math.cos(yaw / 2)
-        return msg
+        return set_map_pose(msg, x, y, yaw, node.get_clock().now().to_msg())
 
     def nav_goal(x, y, yaw):
         goal = NavigateToPose.Goal()

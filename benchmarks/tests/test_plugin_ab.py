@@ -1,5 +1,6 @@
 """Tests for the pure helpers in benchmarks/plugin_ab.py (no ROS needed)."""
 
+import math
 import sys
 from pathlib import Path
 
@@ -132,6 +133,25 @@ def test_real_robot2_crosses_the_route_only_in_the_crossing_scenario():
     assert goal[0] == pytest.approx(start[0])           # straight south along x = 0.3
     assert goal[1] < route_y < start[1]                 # from north of the route to south of it
     assert goal[2] == pytest.approx(start[2])
+
+
+def _stamped(with_covariance):
+    """Duck-typed stand-ins for PoseStamped and PoseWithCovarianceStamped."""
+    from types import SimpleNamespace as NS
+    pose = NS(position=NS(x=0.0, y=0.0), orientation=NS(z=0.0, w=1.0))
+    return NS(header=NS(frame_id="", stamp=None),
+              pose=NS(pose=pose, covariance=[0.0] * 36) if with_covariance else pose)
+
+
+@pytest.mark.parametrize("with_covariance", [False, True])
+def test_set_map_pose_fills_goal_and_initial_pose_messages(with_covariance):
+    from plugin_ab import set_map_pose
+    msg = set_map_pose(_stamped(with_covariance), 1.5, -0.3, math.pi / 2, stamp="now")
+    pose = msg.pose.pose if with_covariance else msg.pose
+    assert msg.header.frame_id == "map" and msg.header.stamp == "now"
+    assert (pose.position.x, pose.position.y) == (1.5, -0.3)
+    assert pose.orientation.z == pytest.approx(math.sqrt(0.5))
+    assert pose.orientation.w == pytest.approx(math.sqrt(0.5))
 
 
 def test_robot2_arrivals_counts_its_own_goal_per_condition():
