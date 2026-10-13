@@ -182,3 +182,48 @@ Each costmap cycle, the layered costmap asks every layer for the area it wants t
 
 - **Parked robot: the layer fixes the problem completely.** Without it, every run hit the invisible robot and none truly arrived; with it, no contacts and every run arrived, at a cost of 1.3 s.
 - **Crossing robot: the layer makes things worse, and why.** The layer draws where the other robot *is*, not where it is *going*. The robot drives toward the crossing point because the other robot is not in its way yet, sees it at the last moment, and stops in its path; the scripted robot2 never yields and hits it, and while the other robot's disk overlaps the robot's own position the planner cannot plan, hence the recoveries. Without the layer the robot simply keeps going and usually clears the crossing first. The fix is motion prediction (drawing the other robot's path a few seconds ahead); it was not added because it changes the layer's design and needs Zach's decision. In Task 5 both robots run the layer, so neither drives blind.
+
+## Gate 5: Two robots on one map (2026-10-12)
+
+### The problem
+One robot running Nav2 is a solved setup; two copies of it in one ROS graph collide on every name. Both would publish `cmd_vel`, `scan` and `odom`, both would broadcast `odom -> base_link` into the same `/tf`, and both lifecycle managers would try to manage the same `/amcl`. On top of that, Gate 4 showed the robots cannot see each other with their lidar, so each needs the other's position from somewhere else.
+
+### What was built
+- **`multi_robot.launch.py`**: one Gazebo world, two complete stacks under `/robot1` and `/robot2`, each with its own robot_state_publisher, EKF, velocity mux, AMCL, map server and Nav2, and its own TF tree, both loading the same saved map. It follows the multi-robot example launch that ships with Nav2.
+- **Per-robot parameters from one YAML file** (`robot_params.py`, five unit tests): namespace, AMCL's initial pose set to the spawn pose, and each robot's avoidance layer pointed at the other robot. One file means the two robots cannot drift apart in tuning.
+- **`shared_pose`**: each robot publishes its map pose at 10 Hz for the other robot's avoidance layer.
+- **Namespaced benchmarks**: `nav_goals.py --namespace robotN`, and `plugin_ab.py --robot1 robot1 --robot2 robot2`, which reruns the Gate 4 A/B with the real second robot driving under its own Nav2.
+
+### Worth being able to explain
+- **Why TF is remapped per robot.** TF is one global topic by default. Two robots using the same frame names (`odom`, `base_link`) would publish contradictory transforms into one tree. Remapping each robot's `/tf` to `/robotN/tf` gives each robot a private tree with the same frame names, so the Nav2 configuration needs no frame prefixes.
+- **Why not AMCL's own pose topic.** AMCL publishes its pose only after a filter update, which needs the robot to move: with both robots parked, `amcl_pose` sent 0 messages in 8.7 s. The other robot's layer drops poses older than 2 s, so a parked robot would vanish from its costmap exactly when it is a static obstacle. A fixed-rate relay fixes that.
+
+### What broke and how it was diagnosed
+1. **The PC went to sleep mid-run.** Nav2's servers send a heartbeat ("bond") every 0.1 s and the lifecycle manager shuts the stack down after 4 s without one; after the host woke, both stacks reset and the benchmark recorded 11 of 11 goals "rejected". Found from a 16-hour gap in the log timestamps. Since then every run holds the machine awake and every script prints "Nav2 lifecycle failures (must be 0)". It happened once more when an app restart dropped the hold; the log timeline showed trials 1 to 3 finished 14 s before the gap, which separated the valid trials from the invalid one. Invalid runs are kept out of `benchmarks/results`.
+2. **A refactor broke the A/B on its first goal.** A shared helper wrote `msg.pose.pose`, which exists on the initial-pose message but not on a Nav2 goal. The one-trial smoke test caught it before any real run; fixed with a module-level function and a test for each message type.
+3. **`ros2 node list` undercounted.** One listing showed robot1 with 5 nodes while both stacks were running; the command reports whatever the discovery daemon has seen so far. Retrying until it settled showed 26 named nodes in each namespace, identical sets, and only Gazebo and the launch process outside them.
+4. **A metric calibrated on a box.** The contact count (centres closer than 0.20 m) shows 1/10 for the parked robot without the layer, but robot1 ended pressed against robot2 in all 10 runs, 1.45 to 1.66 m short of its goal. Two real chassis touch at anywhere from under 0.20 m (side on) to 0.24 m (corner to corner), so a centre distance cannot decide contact. The ground-truth "truly arrived" column is the outcome measure there; the crossing contact counts are unaffected.
+
+### Results
+**Each robot drives the 11-goal tour while the other is parked** (`nav_goals_robot1_20261011_234057.md`, `nav_goals_robot2_20261011_235724.md`):
+
+| Run | Success | Mean time | Mean final error | Recoveries | Closest approach | Parked robot moved |
+|---|---|---|---|---|---|---|
+| One robot alone (Gate 3, round 2) | 11/11 | 21.0 s | 0.100 m | 0 | n/a | n/a |
+| robot1 drives, robot2 parked | 11/11 | 21.3 s | 0.119 m | 0 | 0.81 m | 0.007 m |
+| robot2 drives, robot1 parked | 11/11 | 22.5 s | 0.102 m | 0 | 0.95 m | 0.007 m |
+
+The largest change from the single-robot run is g08_west (32.0 s to 35.7 s, path 6.92 m to 7.45 m), whose goal is 0.7 m from robot2's parking spot. Isolation: a 3 s turn command on `/robot1/cmd_vel_teleop` turned robot1 159 degrees while robot2 turned 0.0 degrees and moved 0.0002 m.
+
+**RobotAvoidanceLayer A/B with two real robots** (`plugin_ab_2robots_20261013_030935.md`, 10 trials per scenario per condition, the layer switched on both robots together):
+
+| Scenario | Layer | Nav2 success | Truly arrived | Mean time | Recoveries | Worst min separation | Contacts | robot2 reached its goal |
+|---|---|---|---|---|---|---|---|---|
+| Parked in the doorway | off | 10/10 | 0/10 | 14.0 s | 0 | 0.198 m | 1/10 (really 10/10, see above) | n/a |
+| Parked in the doorway | on | 10/10 | 10/10 | 16.7 s | 0 | 0.386 m | 0/10 | n/a |
+| Crossing | off | 10/10 | 10/10 | 18.7 s | 0 | 0.190 m | 2/10 | 10/10 |
+| Crossing | on | 9/10 | 9/10 | 22.7 s | 29 | 0.269 m | 0/10 | 9/10 |
+
+- **Parked robot: same as Gate 4.** Without the layer the robot drives into the robot it cannot see every time; with it, every run arrives.
+- **Crossing: the Gate 4 result reverses.** Against a scripted robot that never yielded, the layer made things worse. With both robots running it, each slows for the other, and contacts go from 2/10 to 0/10, at a cost of 4 s per crossing.
+- **The remaining failure is a symmetric standoff.** In one run both robots saw each other at the same instant, ran the same recovery sequence in step (wait, spin, back up), and every spin and back-up failed at once because the other robot's disk was in the way; neither moved and both gave up 26 s later. Breaking it needs asymmetry: a right-of-way rule, or predicting the other robot's motion so one yields early. That is a design decision left to Zach.
