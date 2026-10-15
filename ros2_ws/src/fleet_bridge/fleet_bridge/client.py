@@ -143,7 +143,8 @@ class FleetClient:
         log.info("access token refreshed")
         return True
 
-    def _call(self, method, path, *, json=None, params=None, ok=(200, 201, 204)):
+    def request(self, method, path, *, json=None, params=None, ok=(200, 201, 204)):
+        """Authenticated call with the refresh-then-login retry; returns the JSON body."""
         if self._access is None:
             self.login()
         resp = self._send(method, path, json=json, params=params, token=self._access)
@@ -168,7 +169,7 @@ class FleetClient:
         """Find the robot whose serial number is robot_id, or create it (admin accounts only)."""
         skip = 0
         while True:
-            page = self._call("GET", "/robots", params={"skip": skip, "limit": PAGE})
+            page = self.request("GET", "/robots", params={"skip": skip, "limit": PAGE})
             for robot in page["items"]:
                 if robot["serial_number"] == robot_id:
                     self._robot_ids[robot_id] = robot["id"]
@@ -178,7 +179,7 @@ class FleetClient:
             if not page["items"] or skip >= page["total"]:
                 break
         try:
-            robot = self._call("POST", "/robots", json={
+            robot = self.request("POST", "/robots", json={
                 "name": name, "serial_number": robot_id, "model": "vision_bot (simulated)"})
         except FleetError as err:
             if err.status == 403:
@@ -192,14 +193,14 @@ class FleetClient:
     def post_telemetry(self, robot_id: str, pose: tuple, nav_state: str, battery_pct: float,
                        battery_simulated: bool = True) -> None:
         x, y, yaw = pose
-        self._call("POST", f"/telemetry/robots/{self._fleet_id(robot_id)}", json={
+        self.request("POST", f"/telemetry/robots/{self._fleet_id(robot_id)}", json={
             "pose_x": x, "pose_y": y, "pose_yaw": yaw, "nav_state": nav_state,
             "battery_level": battery_pct, "battery_simulated": battery_simulated})
 
     def fetch_pending_goal(self, robot_id: str) -> Optional[Goal]:
         """The oldest pending goal for this robot, or None."""
-        goals = self._call("GET", f"/robots/{self._fleet_id(robot_id)}/goals",
-                           params={"status": "pending"})
+        goals = self.request("GET", f"/robots/{self._fleet_id(robot_id)}/goals",
+                             params={"status": "pending"})
         if not goals:
             return None
         g = min(goals, key=lambda goal: goal["id"])
@@ -208,4 +209,4 @@ class FleetClient:
     def report_goal_status(self, goal_id: str, status: str) -> None:
         if status not in GOAL_STATUSES:
             raise ValueError(f"status must be one of {GOAL_STATUSES}, not {status!r}")
-        self._call("PATCH", f"/goals/{goal_id}", json={"status": status})
+        self.request("PATCH", f"/goals/{goal_id}", json={"status": status})
