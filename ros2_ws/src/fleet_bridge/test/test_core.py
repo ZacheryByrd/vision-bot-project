@@ -179,6 +179,23 @@ def test_a_refused_report_is_dropped_not_retried_forever():
     assert c.pending_reports == 0
 
 
+@pytest.mark.parametrize("status", [429, 500, 503])
+def test_a_report_hitting_a_temporary_error_is_kept_and_retried(status):
+    client = FakeClient()
+    c = core(client)
+    client.goals = [Goal("4", 1.0, 1.0, 0.0)]
+    c.step(0.0)
+    deliver = client.report_goal_status
+    client.report_goal_status = lambda goal_id, s: (_ for _ in ()).throw(
+        FleetError(status, "slow down"))
+    c.on_nav_result("4", "succeeded")
+    c.step(0.1)
+    assert c.pending_reports == 1
+    client.report_goal_status = deliver
+    c.step(0.2)
+    assert client.reports == [("4", "succeeded")]
+
+
 def test_telemetry_errors_do_not_stop_goal_polling():
     client, nav = FakeClient(), Nav2()
     c = core(client, nav)

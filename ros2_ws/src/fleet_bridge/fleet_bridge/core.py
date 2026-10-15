@@ -24,6 +24,11 @@ def backoff_s(attempt, base_s=1.0, cap_s=30.0):
     return min(cap_s, base_s * 2 ** attempt)
 
 
+def is_temporary(err):
+    """Rate limiting (429) and server errors (5xx) pass; other refusals will not."""
+    return err.status == 429 or (err.status is not None and err.status >= 500)
+
+
 def yaw_from_quaternion(x, y, z, w):
     return math.atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z))
 
@@ -119,6 +124,9 @@ class BridgeCore:
                 log.warning("goal %s %s not delivered yet (%s)", goal_id, status, err)
                 return
             except FleetError as err:
+                if is_temporary(err):
+                    log.warning("goal %s %s not delivered yet (%s)", goal_id, status, err)
+                    return
                 log.warning("fleet refused goal %s %s (%s); dropping it", goal_id, status, err)
             self._reports.popleft()
 
