@@ -8,3 +8,5 @@ __pycache__/
 *.pyc
 # colcon writes log/ in the directory it runs from
 /log/
+# fleet_bridge credentials (template: ros2_ws/src/fleet_bridge/.env.example)
+.env
