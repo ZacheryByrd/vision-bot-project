@@ -227,3 +227,37 @@ The largest change from the single-robot run is g08_west (32.0 s to 35.7 s, path
 - **Parked robot: same as Gate 4.** Without the layer the robot drives into the robot it cannot see every time; with it, every run arrives.
 - **Crossing: the Gate 4 result reverses.** Against a scripted robot that never yielded, the layer made things worse. With both robots running it, each slows for the other, and contacts go from 2/10 to 0/10, at a cost of 4 s per crossing.
 - **The remaining failure is a symmetric standoff.** In one run both robots saw each other at the same instant, ran the same recovery sequence in step (wait, spin, back up), and every spin and back-up failed at once because the other robot's disk was in the way; neither moved and both gave up 26 s later. Breaking it needs asymmetry: a right-of-way rule, or predicting the other robot's motion so one yields early. That is a design decision left to Zach.
+
+## Gate 6: Connecting the robots to the fleet platform (2026-10-14)
+
+### The problem
+The fleet platform (a separate FastAPI + Postgres project) tracked robots, telemetry and maintenance, but had no way to send a robot somewhere and no notion of a position on a map. The simulated robots had Nav2 but no connection to the fleet. The job: a bridge per robot that keeps the fleet's picture of the robot current and turns goals queued in the fleet into Nav2 goals, and that survives everything a network service does to a client: expired tokens, restarts, outages, slowness.
+
+### What was built
+- **Fleet API additions** (fleet repo, branch `v2/goals-api`, approved at Gate 0): a `goals` table with `POST /robots/{id}/goals`, `GET /robots/{id}/goals?status=`, `PATCH /goals/{id}` for admins and operators; a finished goal cannot change and status never returns to pending; every change is audited. Telemetry gained a map-frame pose, a navigation state and a `battery_simulated` flag. One Alembic migration with a working downgrade; 15 new tests, passing on SQLite and Postgres.
+- **`fleet_bridge`** (ROS 2 package): an HTTP client (login, refresh once on 401 and store the rotated refresh token, log in again if the refresh is refused, never log a token), a goal manager (one active goal per robot; a new goal replaces the old one), the bridge's timing and recovery logic kept free of ROS so it is unit tested (registration with exponential backoff, status reports queued in order through outages, telemetry every second with a battery that drains with distance), and a thin ROS node. 54 tests.
+- **Least privilege**: the bridge runs as an operator account, which can post telemetry and update goals but cannot create or delete robots or users. An admin seed script creates the robots and the bridge account once; the generated password goes only to a git-ignored file.
+- **A disposable test stack** of the fleet API on its own port and database, so none of the checks touched the stack in daily use.
+
+### Worth being able to explain
+- **Why HTTP runs on its own thread.** An HTTP call can block for seconds; on ROS's single-threaded executor that would stall the Nav2 action callbacks. The fleet thread only queues goal sends and cancels, and a 10 Hz ROS timer carries them out, so every ROS call stays on ROS's own thread.
+- **Why "accepted" is reported when Nav2 accepts, not when the bridge sends.** Until then the goal is still pending in the fleet, so the next poll returns it again; the goal manager recognizes the repeat and ignores it.
+- **Rate limiting is a deployment setting.** The API allows 100 requests a minute per client address; two robots each posting telemetry every second from one machine exceed that, so a fleet serving bridged robots needs a higher limit, and the bridge treats a 429 as temporary.
+
+### What broke and how it was diagnosed
+1. **A log-capture test saw nothing.** ROS's pytest plugin installs its own logger class whose loggers do not pass records up to the root logger, where pytest listens. Found by printing the logger's state inside a test (`propagate=False`) and tracing the class to `launch.logging`. The test now attaches its handler to the client's logger directly, and a deliberately planted token leak confirmed the test catches one.
+2. **A replacement goal failed within a second.** The bridge cancelled the old goal and sent the new one back to back; Nav2's action server, on a cancel, terminates every goal it holds, including one that has arrived but not started. Found by lining up the bridge log with Nav2's (no "Begin navigating" for the new goal). Fixed by holding a new goal until the old one has finished in Nav2; the rerun shows the new goal sent 5 ms after the cancellation completed, and it succeeded.
+3. **Requests stalled for seconds every few minutes.** Probing the API from inside its container and from the host at the same time showed most stalls were in Docker Desktop's port forwarding under simulation load, not in the API. The bridge rode them out; the check script had to be taught to do the same, and the timings below come from the API's own records.
+4. **A status report rejected with "too many requests" would have been dropped** as if permanent; spotted while reading the rate limiter, fixed test-first before any real run.
+
+### Results (fleet test stack, 1-minute access tokens, both robots running)
+| Check | Result |
+|---|---|
+| Register and post telemetry, both robots | Both resolved by serial number as the operator account; about one reading per second with pose, navigation state and simulated battery |
+| Reachable goal from the fleet, each robot | pending, accepted, succeeded (robot1 20 s, robot2 23 s) |
+| Unreachable goal (off the map) | accepted, then `failed` when Nav2 gave up after 23 s |
+| New goal while one is driving | old goal `canceled`, new goal `succeeded` |
+| API killed for 30 s, then restarted | bridges kept running; telemetry gap 54 s (30 s down plus API startup); a goal sent afterwards succeeded |
+| Token expiry | 8 routine refreshes, none failed |
+| Signing key rotated (all tokens invalid) | refresh refused, logged in again, telemetry gap 25 s |
+| Nav2 lifecycle failures, bridge crashes, rate-limit rejections | 0, 0, 0 |
