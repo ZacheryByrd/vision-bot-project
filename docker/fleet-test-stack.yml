@@ -9,7 +9,8 @@
 #   docker compose -f docker/fleet-test-stack.yml down
 #
 # ACCESS_TOKEN_EXPIRE_MINUTES (default 60) can be set to 1 to make the bridge
-# refresh its token every minute. From the vision_bot container the API is
+# refresh its token every minute, and a new FLEET_SECRET_KEY makes it log in
+# again. From the vision_bot container the API is
 # http://host.docker.internal:8001/api/v1.
 name: fleet-v2-test
 
@@ -31,7 +32,8 @@ services:
       context: ${FLEET_BACKEND:-../../robot-fleet-management/backend}
     environment:
       DATABASE_URL: postgresql+psycopg2://fleet:fleet@postgres:5432/fleet
-      SECRET_KEY: fleet-v2-test-stack-only
+      # Changing it invalidates every issued token, refresh tokens included.
+      SECRET_KEY: ${FLEET_SECRET_KEY:-fleet-v2-test-stack-only}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
       # Two bridges post telemetry every second from one address (DECISIONS #65).
       RATE_LIMIT_DEFAULT: 1000/minute

@@ -26,6 +26,7 @@ from rclpy.node import Node
 
 from fleet_bridge.client import FleetClient, UrllibSession
 from fleet_bridge.core import BridgeCore, yaw_from_quaternion
+from fleet_bridge.goal_manager import NavDispatcher
 
 NAV2_OUTCOME = {GoalStatus.STATUS_SUCCEEDED: "succeeded", GoalStatus.STATUS_ABORTED: "aborted",
                 GoalStatus.STATUS_CANCELED: "canceled"}
@@ -51,6 +52,7 @@ class BridgeNode(Node):
         self._outbox = deque()          # ("send", Goal) / ("cancel", goal_id) from the fleet thread
         self._handles = {}              # goal_id -> ClientGoalHandle (executor thread only)
         self._cancel_on_accept = set()
+        self._dispatch = NavDispatcher(send_now=self._send, cancel_now=self._cancel)
         client = FleetClient(base_url, user, password, UrllibSession())
         self.core = BridgeCore(client, robot_id, name, send=self._queue_send,
                                cancel=self._queue_cancel, telemetry_period_s=telemetry_s,
@@ -84,14 +86,15 @@ class BridgeNode(Node):
         while self._outbox:
             kind, item = self._outbox.popleft()
             if kind == "send":
-                self._send(item)
+                self._dispatch.send(item)
             else:
-                self._cancel(item)
+                self._dispatch.cancel(item)
 
     def _send(self, goal):
         if not self._nav.server_is_ready():
             self.get_logger().warning(f"goal {goal.goal_id}: navigate_to_pose is not available")
             self.core.on_nav_result(goal.goal_id, "rejected")
+            self._dispatch.on_finished(goal.goal_id)
             return
         msg = NavigateToPose.Goal()
         msg.pose.header.frame_id = "map"
@@ -109,6 +112,7 @@ class BridgeNode(Node):
             self.get_logger().warning(f"goal {goal_id}: rejected by Nav2")
             self._cancel_on_accept.discard(goal_id)
             self.core.on_nav_result(goal_id, "rejected")
+            self._dispatch.on_finished(goal_id)
             return
         self._handles[goal_id] = handle
         self.core.on_nav_result(goal_id, "accepted")
@@ -124,6 +128,7 @@ class BridgeNode(Node):
         outcome = NAV2_OUTCOME.get(status, "aborted")
         self.get_logger().info(f"goal {goal_id}: {outcome}")
         self.core.on_nav_result(goal_id, outcome)
+        self._dispatch.on_finished(goal_id)
 
     def _cancel(self, goal_id):
         handle = self._handles.get(goal_id)
@@ -141,7 +146,7 @@ def yaw_to_quaternion(yaw):
 
 def main():
     logging.basicConfig(level=logging.INFO,
-                        format="[fleet_bridge] %(levelname)s %(name)s: %(message)s")
+                        format="[fleet_bridge] %(asctime)s %(levelname)s %(name)s: %(message)s")
     rclpy.init()
     node = BridgeNode()
     try:

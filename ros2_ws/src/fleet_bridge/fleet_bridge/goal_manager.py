@@ -50,3 +50,40 @@ class GoalManager:
         self._report(goal_id, FLEET_STATUS[status])
         if status != "accepted":
             self._active = None
+
+
+class NavDispatcher:
+    """Orders goal sends and cancels for one Nav2 action server.
+
+    Nav2's action server, on a cancel, terminates every goal it holds, including
+    one that arrived after the cancel and is still waiting to start; that goal
+    is aborted unseen (Gate 6). So while a goal is still in Nav2, a new goal is
+    held back and sent when the old one finishes; a held goal that is replaced
+    in turn is simply dropped (the fleet was already told it was canceled).
+    """
+
+    def __init__(self, send_now: Callable[[Goal], None], cancel_now: Callable[[str], None]):
+        self._send_now = send_now
+        self._cancel_now = cancel_now
+        self._in_nav2 = set()
+        self._held: Optional[Goal] = None
+
+    def send(self, goal: Goal) -> None:
+        if self._in_nav2:
+            self._held = goal
+            return
+        self._in_nav2.add(goal.goal_id)
+        self._send_now(goal)
+
+    def cancel(self, goal_id: str) -> None:
+        if self._held is not None and self._held.goal_id == goal_id:
+            self._held = None
+        elif goal_id in self._in_nav2:
+            self._cancel_now(goal_id)
+
+    def on_finished(self, goal_id: str) -> None:
+        """Nav2 finished (or rejected) this goal."""
+        self._in_nav2.discard(goal_id)
+        if not self._in_nav2 and self._held is not None:
+            goal, self._held = self._held, None
+            self.send(goal)

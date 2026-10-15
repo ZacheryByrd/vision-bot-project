@@ -120,3 +120,59 @@ def test_send_failure_reports_failed():
     gm.on_new_goal(G1)
     assert rec.reports == [("1", "failed")]
     assert gm.active_goal_id is None
+
+
+# NavDispatcher: Nav2 aborts a goal that arrives while it is still cancelling
+# the previous one (found at Gate 6), so a replacement waits for the old goal
+# to finish in Nav2.
+
+class FakeNav2:
+    def __init__(self):
+        self.calls = []
+
+    def send_now(self, goal):
+        self.calls.append(("send", goal.goal_id))
+
+    def cancel_now(self, goal_id):
+        self.calls.append(("cancel", goal_id))
+
+
+def dispatcher():
+    from fleet_bridge.goal_manager import NavDispatcher
+    nav = FakeNav2()
+    return NavDispatcher(send_now=nav.send_now, cancel_now=nav.cancel_now), nav
+
+
+def test_dispatcher_sends_straight_away_when_nav2_is_idle():
+    d, nav = dispatcher()
+    d.send(G1)
+    assert nav.calls == [("send", "1")]
+
+
+def test_replacement_waits_until_the_cancelled_goal_finishes():
+    d, nav = dispatcher()
+    d.send(G1)
+    d.cancel("1")
+    d.send(G2)
+    assert nav.calls == [("send", "1"), ("cancel", "1")]
+    d.on_finished("1")
+    assert nav.calls[-1] == ("send", "2")
+
+
+def test_a_deferred_goal_that_is_replaced_again_is_never_sent():
+    G3 = Goal("3", 0.0, 0.0, 0.0)
+    d, nav = dispatcher()
+    d.send(G1)
+    d.cancel("1")
+    d.send(G2)
+    d.cancel("2")
+    d.send(G3)
+    d.on_finished("1")
+    assert nav.calls == [("send", "1"), ("cancel", "1"), ("send", "3")]
+
+
+def test_finishing_an_unknown_goal_changes_nothing():
+    d, nav = dispatcher()
+    d.on_finished("9")
+    d.send(G1)
+    assert nav.calls == [("send", "1")]
