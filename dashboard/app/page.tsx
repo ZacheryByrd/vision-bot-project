@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import VideoFeed from "./components/VideoFeed";
 import StatusPanel from "./components/StatusPanel";
 import ControlPanel from "./components/ControlPanel";
+import MapView from "./components/MapView";
 
 export default function DashboardPage() {
   const { connected, detection, cmdVel, autonomousEnabled, setAutonomousEnabled } =
@@ -24,6 +25,7 @@ export default function DashboardPage() {
           />
         </div>
       </div>
+      <MapView />
     </main>
   );
 }

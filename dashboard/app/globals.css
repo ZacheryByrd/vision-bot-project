@@ -223,3 +223,125 @@ body {
   margin: 0;
   line-height: 1.4;
 }
+
+/* Map view (v2): the saved map, robots from fleet telemetry, click-to-goal. */
+.map-view {
+  margin-top: 1.5rem;
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.map-view__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.map-view__title {
+  font-weight: 600;
+}
+
+.map-view__choice {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+.map-view__choice select {
+  background: #2a2e3d;
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85rem;
+}
+
+.map-view__canvas {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1 / 1;
+  align-self: center;
+}
+
+.map-view__canvas img,
+.map-view__canvas svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.map-view__canvas img {
+  image-rendering: pixelated;
+  border-radius: 6px;
+}
+
+.map-view__canvas svg {
+  cursor: crosshair;
+}
+
+.map-view__robot circle {
+  fill-opacity: 0.85;
+  stroke: #0f1117;
+  stroke-width: 0.6;
+}
+
+.map-view__robot line {
+  stroke: #0f1117;
+  stroke-width: 0.9;
+  stroke-linecap: round;
+}
+
+.map-view__robot text {
+  font-size: 5px;
+  fill: #0f1117;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.map-view__robot--idle circle { fill: var(--good); }
+.map-view__robot--navigating circle { fill: var(--accent); }
+.map-view__robot--stale circle { fill: var(--text-faint); }
+
+.map-view__goal line {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+}
+
+.map-view__error {
+  color: var(--bad);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.map-view__goals {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.map-view__goals li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.goal-status {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  color: var(--text-dim);
+}
+
+.goal-status--accepted { color: var(--accent); }
+.goal-status--succeeded { color: var(--good); }
+.goal-status--failed,
+.goal-status--canceled { color: var(--bad); }

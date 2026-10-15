@@ -1,19 +1,22 @@
 #!/usr/bin/env python3
-"""Admin seed step for fleet_bridge (DECISIONS, 2026-10-14): run once per fleet.
+"""Admin seed step for fleet_bridge and the dashboard (DECISIONS, 2026-10-14): run once per fleet.
 
 Creates the two simulated robots (serial numbers VB-SIM-1 and VB-SIM-2) if
-they are missing and, with --bridge-user, an operator account for the bridge.
-The bridge password is generated here and written only to --env-file (git
-ignores .env); it is never printed. Re-running is safe: existing robots are
-reused, and an account whose password is already in the env file is checked
-by logging in with it.
+they are missing and, for each --account, an operator account (the bridge and
+the dashboard each get their own). Each password is generated here and written
+only to that account's env file (git ignores .env and .env.local); it is never
+printed. The file's FLEET_* lines are replaced and every other line is kept.
+Re-running is safe: existing robots are reused, and an account whose password
+is already in its env file is checked by logging in with it.
 
 Env: FLEET_ADMIN_USER, FLEET_ADMIN_PASSWORD (an admin account), and
 FLEET_API_BASE_URL (default http://localhost:8000/api/v1).
 
-  python3 scripts/seed_fleet.py --bridge-user vision-bot-bridge@example.com \
-      --env-file ros2_ws/src/fleet_bridge/.env \
-      --bridge-api-url http://host.docker.internal:8001/api/v1
+  python3 scripts/seed_fleet.py \
+      --account vision-bot-bridge@example.com ros2_ws/src/fleet_bridge/.env \
+          http://host.docker.internal:8001/api/v1 \
+      --account vision-bot-dashboard@example.com dashboard/.env.local \
+          http://localhost:8001/api/v1
 """
 
 import argparse
@@ -27,6 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ros2_ws" / "src" /
 from fleet_bridge.client import FleetAuthError, FleetClient, FleetError, UrllibSession  # noqa: E402
 
 ROBOTS = (("VB-SIM-1", "robot1"), ("VB-SIM-2", "robot2"))
+KEYS = ("FLEET_API_BASE_URL", "FLEET_USER", "FLEET_PASSWORD")
 
 
 def read_env(path):
@@ -39,39 +43,45 @@ def read_env(path):
     return values
 
 
-def bridge_account(base_url, user, env_file, bridge_api_url, admin):
+def merge_env(text, values):
+    """text with the lines for values' keys replaced (or appended); other lines kept."""
+    kept = [line for line in text.splitlines()
+            if line.split("=", 1)[0].strip() not in values
+            and line != "# Fleet API account, written by scripts/seed_fleet.py"]
+    return "\n".join(kept + ["# Fleet API account, written by scripts/seed_fleet.py"]
+                     + [f"{k}={v}" for k, v in values.items()]) + "\n"
+
+
+def operator_account(base_url, user, env_file, account_api_url, admin):
     existing = read_env(env_file)
     if existing.get("FLEET_USER") == user and existing.get("FLEET_PASSWORD"):
-        bridge = FleetClient(base_url, user, existing["FLEET_PASSWORD"], UrllibSession())
-        bridge.login()
-        return bridge, "already set up"
+        account = FleetClient(base_url, user, existing["FLEET_PASSWORD"], UrllibSession())
+        account.login()
+        return account, "already set up"
     password = secrets.token_urlsafe(18)
     try:
-        admin.request("POST", "/users", json={"email": user, "full_name": "vision_bot fleet bridge",
+        admin.request("POST", "/users", json={"email": user, "full_name": user.split("@")[0],
                                               "password": password, "role_name": "operator"})
     except FleetError as err:
         if err.status == 409:
             sys.exit(f"{user} already exists but its password is not in {env_file}; "
-                     "reset it in the fleet admin UI or choose another --bridge-user")
+                     "reset it in the fleet admin UI or choose another account")
         raise
-    env_file.write_text("# Written by scripts/seed_fleet.py; git ignores this file.\n"
-                        f"FLEET_API_BASE_URL={bridge_api_url or base_url}\n"
-                        f"FLEET_USER={user}\nFLEET_PASSWORD={password}\n")
+    text = env_file.read_text() if env_file.exists() else ""
+    env_file.write_text(merge_env(text, dict(zip(KEYS, (account_api_url, user, password)))))
     env_file.chmod(0o600)
-    bridge = FleetClient(base_url, user, password, UrllibSession())
-    bridge.login()
-    return bridge, f"created; credentials written to {env_file} (password not shown)"
+    account = FleetClient(base_url, user, password, UrllibSession())
+    account.login()
+    return account, f"created; credentials written to {env_file} (password not shown)"
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
-    parser.add_argument("--bridge-user", help="email of the bridge's operator account")
-    parser.add_argument("--env-file", type=Path, help="where to write the bridge credentials")
-    parser.add_argument("--bridge-api-url",
-                        help="API URL as the bridge sees it (default: FLEET_API_BASE_URL)")
+    parser.add_argument("--account", nargs=3, action="append", default=[],
+                        metavar=("EMAIL", "ENV_FILE", "API_URL"),
+                        help="an operator account, the env file for its credentials, and the "
+                             "API URL as that client sees it")
     args = parser.parse_args()
-    if bool(args.bridge_user) != bool(args.env_file):
-        parser.error("--bridge-user and --env-file go together")
     base_url = os.environ.get("FLEET_API_BASE_URL", "http://localhost:8000/api/v1")
     try:
         admin = FleetClient(base_url, os.environ["FLEET_ADMIN_USER"],
@@ -83,13 +93,12 @@ def main():
         for serial, name in ROBOTS:
             robot = admin.register_robot(serial, name)
             print(f"{serial} ({name}): fleet robot {robot['id']}")
-        if args.bridge_user:
-            bridge, outcome = bridge_account(base_url, args.bridge_user, args.env_file,
-                                             args.bridge_api_url, admin)
-            role = bridge.request("GET", "/auth/me")["role"]["name"]
-            print(f"bridge account {args.bridge_user}: {outcome}; role {role}")
+        for user, env_file, api_url in args.account:
+            account, outcome = operator_account(base_url, user, Path(env_file), api_url, admin)
+            role = account.request("GET", "/auth/me")["role"]["name"]
+            print(f"account {user}: {outcome}; role {role}")
             if role != "operator":
-                print(f"warning: the bridge account is {role}, not operator")
+                print(f"warning: {user} is {role}, not operator")
     except FleetAuthError as err:
         sys.exit(f"login refused: {err}")
 
