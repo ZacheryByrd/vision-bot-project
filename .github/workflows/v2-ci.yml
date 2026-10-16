@@ -1,0 +1,93 @@
+name: v2 CI
+
+# Builds and tests the v2 navigation stack, the fleet bridge and the dashboard,
+# and replays the recorded drive through the EKF (no Gazebo, no GUI).
+on:
+  push:
+    branches: ["v2/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ros:
+    name: ROS build, tests, EKF replay regression
+    runs-on: ubuntu-latest
+    container:
+      image: osrf/ros:humble-desktop
+    env:
+      ROS_LOCALHOST_ONLY: "1"
+      PYTHONUNBUFFERED: "1"
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          rosdep update --rosdistro humble
+          rosdep install --from-paths ros2_ws/src --ignore-src -y --rosdistro humble \
+            --dependency-types build --dependency-types buildtool \
+            --dependency-types build_export --dependency-types test
+          # Runtime pieces the tests and the replay need.
+          apt-get install -y --no-install-recommends \
+            ros-humble-robot-localization ros-humble-rosbag2-compression-zstd \
+            ros-humble-nav2-lifecycle-manager python3-pytest python3-flake8
+
+      - name: colcon build
+        run: |
+          source /opt/ros/humble/setup.bash
+          cd ros2_ws
+          colcon build --packages-up-to vision_bot vision_bot_nav vision_bot_plugins fleet_bridge
+
+      - name: colcon test (costmap plugin gtests and launch test)
+        run: |
+          source /opt/ros/humble/setup.bash
+          cd ros2_ws
+          colcon test --packages-select vision_bot_plugins
+          colcon test-result --verbose
+
+      - name: Python tests (benchmarks, scripts, launch helpers, fleet bridge)
+        run: |
+          source /opt/ros/humble/setup.bash
+          python3 -m pytest -q benchmarks/tests scripts/tests \
+            ros2_ws/src/vision_bot_nav/test ros2_ws/src/fleet_bridge/test
+
+      - name: Lint (flake8)
+        run: |
+          python3 -m flake8 --max-line-length 110 benchmarks scripts/map_to_png.py
+          python3 -m flake8 --max-line-length 100 ros2_ws/src/fleet_bridge scripts/seed_fleet.py
+
+      - name: EKF replay regression
+        run: |
+          source /opt/ros/humble/setup.bash
+          source ros2_ws/install/setup.bash
+          cd benchmarks
+          python3 replay_regression.py --bag bags/drift_loop --json-out replay_result.json
+
+      - name: Upload replay result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: replay-regression
+          path: benchmarks/replay_result.json
+          if-no-files-found: ignore
+
+  dashboard:
+    name: Dashboard tests and build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

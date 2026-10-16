@@ -1,0 +1,12 @@
+{
+  "metric": "EKF mean position error vs ground truth (m), each path relative to its own start pose",
+  "bag": "benchmarks/bags/drift_loop",
+  "bag_recorded_by": "benchmarks/record_regression_bag.sh (drift_loop route, nav_sim.launch.py, 2026-10-16)",
+  "ekf_config": "ros2_ws/src/vision_bot_nav/config/ekf.yaml",
+  "baseline_runs_mean_m": [0.0607, 0.0606, 0.0606, 0.0607, 0.0612],
+  "baseline_mean_m": 0.0608,
+  "margin_m": 0.02,
+  "threshold_m": 0.08,
+  "margin_reason": "about 30 times the run-to-run spread of 5 local replays (0.0006 m), so slower CI hardware does not fail it, while a third worse EKF does",
+  "raw_output": "benchmarks/results/replay_regression_baseline_20261016.txt"
+}

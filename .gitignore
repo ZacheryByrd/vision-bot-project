@@ -12,3 +12,5 @@ __pycache__/
 .env
 # TypeScript incremental build cache
 dashboard/tsconfig.tsbuildinfo
+# CI artifact of benchmarks/replay_regression.py
+benchmarks/replay_result.json

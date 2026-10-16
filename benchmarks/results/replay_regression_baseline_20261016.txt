@@ -1,0 +1,10 @@
+EKF vs ground truth over 1080 samples: mean 0.0607 m, max 0.1511 m, final 0.0165 m; threshold 1.0000 m: PASS
+run 1 exit 0 in 165 s
+EKF vs ground truth over 1081 samples: mean 0.0606 m, max 0.1508 m, final 0.0165 m; threshold 1.0000 m: PASS
+run 2 exit 0 in 168 s
+EKF vs ground truth over 1081 samples: mean 0.0606 m, max 0.1508 m, final 0.0165 m; threshold 1.0000 m: PASS
+run 3 exit 0 in 165 s
+EKF vs ground truth over 1081 samples: mean 0.0607 m, max 0.1513 m, final 0.0162 m; threshold 1.0000 m: PASS
+run 4 exit 0 in 161 s
+EKF vs ground truth over 1077 samples: mean 0.0612 m, max 0.1516 m, final 0.0166 m; threshold 1.0000 m: PASS
+run 5 exit 0 in 162 s
