@@ -1,8 +1,11 @@
 # vision_bot -- Vision-Guided Rover
 
 [![CI](https://github.com/ZacheryByrd/vision-bot-project/actions/workflows/ci.yml/badge.svg)](https://github.com/ZacheryByrd/vision-bot-project/actions/workflows/ci.yml)
+[![v2 CI](https://github.com/ZacheryByrd/vision-bot-project/actions/workflows/v2-ci.yml/badge.svg)](https://github.com/ZacheryByrd/vision-bot-project/actions/workflows/v2-ci.yml)
 
-Read **`PROJECT_PLAN.md`** first -- it has the full architecture rationale,
+**v2** (autonomous navigation and a two-robot fleet) is described in
+[v2: autonomous navigation and a two-robot fleet](#v2-autonomous-navigation-and-a-two-robot-fleet)
+below. For v1, read **`PROJECT_PLAN.md`** first -- it has the full architecture rationale,
 week-by-week roadmap, hardware parts list (optional), and resume framing.
 
 This repo is a real, runnable project, not pseudocode:
@@ -225,3 +228,108 @@ panel (connection state, detection offset, `/cmd_vel`) updating in real time.
   (a boost shared_ptr null-dereference, `gazebo::transport::Connection`) --
   a Gazebo Classic bug triggered by the test methodology, not by anything
   in this repo; a normal single `ros2 launch` never does this.
+
+## v2: autonomous navigation and a two-robot fleet
+
+v2 turns the rover into a simulated two-robot fleet. Each robot builds and uses a saved map (slam_toolbox, then AMCL), fuses wheel odometry and the IMU with an EKF, and navigates with Nav2; a custom C++ costmap layer lets each robot avoid the other, which its lidar cannot see; and a bridge node connects every robot to a separate fleet-management platform (FastAPI, PostgreSQL, JWT/RBAC), so goals clicked on the dashboard's map travel through the fleet platform to the right robot. v1 still works unchanged (`scripts/check_v1.sh` passes at every stage).
+
+![A map click sends the nearest idle robot to the clicked point](docs/images/gate7_click_to_goal.gif)
+
+```
+Fleet platform (robot-fleet-management: FastAPI, PostgreSQL, JWT, RBAC)
+      ^ REST                                           ^
+      |                                                |
+ fleet_bridge /robot1                             fleet_bridge /robot2
+      | NavigateToPose, map pose, nav state, battery   |
+ /robot1: lidar, imu, odom -> EKF -> AMCL -> Nav2 -> twist_mux -> diff drive
+ /robot2: same stack, own namespace, own TF tree, shared saved map
+ v1 perception + motor_control remain, feeding twist_mux as one input
+```
+
+Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Why each piece is the way it is: [`docs/DECISIONS.md`](docs/DECISIONS.md). How every number below was produced: [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md).
+
+### Results (simulation; each row's raw data is in `benchmarks/results/`)
+
+**Localization: wheel odometry vs the EKF** over a 21.6 m two-lap drive (`odom_drift_20261009_043714`)
+
+| Estimate | Mean error | Max error | Final error |
+|---|---|---|---|
+| Raw wheel odometry | 0.658 m | 1.378 m | 0.629 m |
+| EKF (odometry + IMU) | 0.077 m | 0.149 m | 0.069 m |
+
+**Navigation: an 11-goal tour of the saved map**
+
+| Configuration | Success | Mean time | Mean final error | Recoveries | File |
+|---|---|---|---|---|---|
+| Stock Nav2 defaults | 11/11 | 27.2 s | 0.182 m | 35 | `nav_goals_20261010_003755` |
+| Tuned (Regulated Pure Pursuit) | 11/11 | 21.0 s | 0.100 m | 0 | `nav_goals_20261010_052224` |
+| Two robots: robot1 drives, robot2 parked | 11/11 | 21.3 s | 0.119 m | 0 | `nav_goals_robot1_20261011_234057` |
+| Two robots: robot2 drives, robot1 parked | 11/11 | 22.5 s | 0.102 m | 0 | `nav_goals_robot2_20261011_235724` |
+
+**RobotAvoidanceLayer A/B with two real robots**, 10 trials per row (`plugin_ab_2robots_20261013_030935`). "Truly arrived" = Nav2 success and within 0.30 m of the goal by ground truth.
+
+| Scenario | Layer | Truly arrived | Contacts | Worst min separation | Mean time |
+|---|---|---|---|---|---|
+| Robot parked in a doorway | off | 0/10 | 1/10 (undercounted; all 10 ended against the robot, DECISIONS #58) | 0.198 m | 14.0 s |
+| Robot parked in a doorway | on | 10/10 | 0/10 | 0.386 m | 16.7 s |
+| Paths crossing | off | 10/10 | 2/10 | 0.190 m | 18.7 s |
+| Paths crossing | on | 9/10 | 0/10 | 0.269 m | 22.7 s |
+
+Against a scripted stand-in robot that never yields (`plugin_ab_20261010_065758`), the same layer made crossing worse (truly arrived 10/10 off vs 5/10 on); with both robots running it, crossing contacts drop to zero. The one failure in the table above is a symmetric standoff (both robots stop facing each other).
+
+**EKF regression in CI:** a recorded drive replayed through the EKF gives a mean error of 0.0606 to 0.0612 m over 5 replays (`replay_regression_baseline_20261016.txt`); CI fails above 0.08 m (`benchmarks/baseline.json`).
+
+### Run it
+
+From the repo root on Windows (Docker Desktop). The fleet API used here is a disposable copy on port 8001 built from the fleet repo's `v2/goals-api` branch; see `docker/fleet-test-stack.yml` and `scripts/seed_fleet.py` for setting it up from scratch.
+
+```powershell
+# 1. fleet API (test copy, port 8001)
+$env:FLEET_BACKEND="C:/path/to/robot-fleet-management/backend"
+docker compose -f docker/fleet-test-stack.yml up -d --build
+
+# 2. optional, for Gazebo windows: an X server
+& "C:\Program Files\VcXsrv\vcxsrv.exe" -multiwindow -clipboard -wgl -ac
+
+# 3. the ROS container; open one shell per terminal below
+docker compose -f docker/docker-compose.yml up -d
+docker compose -f docker/docker-compose.yml exec ros bash
+```
+
+```bash
+# inside the container, once
+source /opt/ros/humble/setup.bash
+cd /workspace/ros2_ws && colcon build --symlink-install && source install/setup.bash
+
+# terminal A: both robots (add gui:=false without an X server)
+ros2 launch vision_bot_nav multi_robot.launch.py rviz:=true
+
+# terminal B: the fleet bridges
+source /workspace/ros2_ws/install/setup.bash
+set -a; source /workspace/ros2_ws/src/fleet_bridge/.env; set +a
+ros2 launch fleet_bridge fleet_bridge.launch.py
+```
+
+```powershell
+# 4. the dashboard (port 3000 belongs to the fleet frontend)
+cd dashboard; npm ci; npm run build; npm run start -- -p 3001
+```
+
+Open http://localhost:3001, scroll to **Map**, and click: the goal goes to the chosen robot (or the nearest idle one) through the fleet API, and its status updates in the list. One robot without the fleet: `ros2 launch vision_bot_nav nav2.launch.py rviz:=true` and set a goal in RViz.
+
+### v1 and v2
+
+| | v1 | v2 |
+|---|---|---|
+| Behavior | Drive toward a detected target or follow a line | Map a world, localize on the map, plan and drive to any goal |
+| Sensing | Camera | Camera, 2D lidar, IMU, wheel odometry |
+| Robots | One | Two, each in its own namespace and TF tree |
+| Commands | Dashboard toggle over rosbridge | Goals through the fleet platform's REST API; v1 behaviors still feed the same velocity mux |
+| Tests | Unit tests, dashboard build | Plus costmap gtests and a launch test, bridge and dashboard tests, an EKF replay regression in CI |
+
+### Limitations
+- **Simulation only.** No hardware run; the battery level is simulated from distance driven and flagged as such.
+- **Two robots can stand off.** When both robots see each other at the same moment they can stop face to face (1 of 10 crossing trials); breaking it needs a right-of-way rule or motion prediction, not built.
+- **Goals on thin walls.** A click on a 5 to 10 cm wall can end `succeeded` with the robot against the wall about 0.30 m from the clicked point; goals the robot cannot get within 0.30 m of are reported `failed` (DECISIONS #71).
+- **Machine limits.** On the 8 GB development PC, two robots plus the fleet stack and a browser ran out of memory; stalls then broke Nav2's heartbeats. Gate runs counted those failures and discarded affected runs.
+- **The fleet changes are on a branch.** The goal endpoints live on the fleet repo's `v2/goals-api` branch and run in a separate test stack; they are not merged into the fleet's `main`.
