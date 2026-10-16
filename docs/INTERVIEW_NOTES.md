@@ -261,3 +261,33 @@ The fleet platform (a separate FastAPI + Postgres project) tracked robots, telem
 | Token expiry | 8 routine refreshes, none failed |
 | Signing key rotated (all tokens invalid) | refresh refused, logged in again, telemetry gap 25 s |
 | Nav2 lifecycle failures, bridge crashes, rate-limit rejections | 0, 0, 0 |
+
+## Gate 7: A map view with click-to-goal (2026-10-15)
+
+### The problem
+The dashboard showed one robot's camera and line-following state through rosbridge. With a fleet platform in place, an operator should be able to see every robot on the map and send one somewhere by clicking, with the fleet platform, not a direct ROS connection, as the single path for commands, so every goal is authenticated, recorded and visible to the rest of the fleet.
+
+### What was built
+- **Map math**: conversions between image pixels and the map frame (ROS map conventions: the origin is the image's bottom-left corner and image rows count down), with tests. The saved map is converted to a PNG by a small standard-library script, since browsers cannot show PGM.
+- **Server routes in the dashboard** that log into the fleet API with their own operator account, so no token reaches the browser: list robots with their latest telemetry, queue a goal, and read a goal's status.
+- **The map view**: the map with each robot's position, heading and state (green idle, blue navigating, grey when telemetry is more than 5 s old), a click that sends a goal to a chosen robot or the nearest idle one, and a list of goals with live status, `failed` in red.
+- **A test runner** for the dashboard (vitest, 29 tests).
+
+### Worth being able to explain
+- **Why the SVG overlay uses the map's own pixel grid.** The overlay's coordinate system is the image's 200 x 200 pixels, so robot poses and clicks convert through one pure function regardless of how large the map is drawn; the browser's screen transform handles the rest.
+- **Why goals go through the fleet API instead of rosbridge.** One path for commands means one place for authentication, auditing and status; the robots' bridges are the only things that talk to Nav2.
+
+### What broke and how it was diagnosed
+1. **A click failed with "the fleet API is not answering."** Server-side metrics showed the API fast; probing showed the failures only after a pause: the API closes idle connections after 5 s and Node reused one just as it closed (6 of 24 requests after 5 s gaps, none of 445 without gaps). Fixed with one retry on a reset connection, test-first.
+2. **Requests hung for up to a minute.** The API answered in milliseconds from inside its container, so the delay was outside it; the host had 570 MB of free memory and 4 GB paged out, and the same stalls then took down the Nav2 stacks (8 lifecycle failures), so that run was discarded. A 10 s client timeout keeps the map responsive, and the rerun used the lighter production build of the dashboard (0 failures).
+3. **Nav2 said "succeeded" for a goal inside an obstacle.** Its planner moves an unreachable goal to the nearest free cell and the controller checks arrival against that, so the robot stopped 0.48 m from the clicked point. The bridge now checks the robot's own position against the requested goal and reports `failed` beyond 0.30 m, the same "truly arrived" threshold as the Gate 4 benchmark.
+4. **My first scripted clicks landed in the wrong place** because screenshots are scaled relative to the page. The checks then clicked through the page itself, converting a world point to screen coordinates from the map element's own position.
+
+### Results
+| Check | Result |
+|---|---|
+| Click on the east room, "nearest idle robot" | goal 15 to robot1, accepted, robot drives through the doorway, `succeeded` (`docs/images/gate7_click_to_goal.gif`) |
+| Click inside an obstacle (box centre) | goal 18: Nav2 reported success 0.48 m away; the bridge reported `failed`, shown in red |
+| Click on a thin wall | robot stops against the wall about 0.30 m from the point; reported `succeeded` (see DECISIONS #71) |
+| Camera stream, telemetry panel, manual/auto toggle, reconnect | stream live (about 15 frames/s), detection values update, the toggle published `false` on `/vision_bot/autonomous_enabled`, and after rosbridge was stopped and restarted the dashboard reconnected on its own in 10 s |
+| Nav2 lifecycle failures in the valid run | 0 |
