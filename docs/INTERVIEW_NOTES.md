@@ -308,3 +308,28 @@ Login (email and password) returns a short-lived access token and a long-lived r
 
 **Why are twist_mux's priorities ordered teleop > line follow > navigation > idle?**
 The mux forwards the highest-priority input that has published within 0.5 s, so the order says who wins when two want the robot. A person at the keyboard must always be able to take over, so teleop is highest. The v1 line follower is an explicit mode the operator switches on, so while it is on it should override background navigation. Nav2 is the default autonomous mover. The idle source keeps a zero command flowing at the lowest priority so the drive never keeps executing a stale command when everything else goes quiet. Every source publishes to its own topic and only the mux publishes `cmd_vel`, which keeps one owner for the final command.
+
+## Gate 8: CI, a rosbag regression, and documentation (2026-10-16)
+
+### What was built
+- **An EKF regression test that runs without a simulator.** A two-lap drive was recorded once into a 3.4 MB compressed rosbag (wheel odometry, IMU, lidar, static transforms, ground truth and the simulation clock). `benchmarks/replay_regression.py` plays it through a fresh EKF using the repo's configuration and fails if the mean position error against ground truth rises above 0.08 m (baseline 0.061 m).
+- **A CI workflow** (`.github/workflows/v2-ci.yml`) for every push to a `v2/*` branch: install dependencies with rosdep, build all ROS packages, run the costmap plugin's C++ tests and launch test, every Python test, lint, the EKF replay, and the dashboard's tests and production build.
+- **Documentation**: the README's v2 section (overview, demo, results tables whose rows each name their file in `benchmarks/results/`, exact run commands, limitations), `docs/ARCHITECTURE.md`, and `docs/BENCHMARKS.md` (how to reproduce each number).
+
+### Worth being able to explain
+- **Why replay a recording instead of running the simulator in CI.** A simulator in CI is slow, needs a GPU or a virtual display, and is not deterministic. The recording fixes the inputs, so the only thing that can change the result is the code and configuration under test; five local replays agreed to within 0.6 mm.
+- **Why record the clock.** The recorded messages carry simulation timestamps. Replaying the original clock alongside them keeps the filter's notion of time consistent with its inputs.
+
+### What broke and how it was diagnosed
+1. **A 19 MB file got committed.** Playing a compressed bag writes an uncompressed copy next to it; it went in with the first commit. Removed and ignored; rewriting the already pushed commit was left for Zach to decide.
+2. **A fresh clone could not follow the README.** Account setup was missing from the steps, and the dashboard's example env file carried a placeholder password that the setup script then used as the real one. Both were found only by doing the clone for real, and fixed with tests.
+3. **Docker Desktop had stopped** between sessions (its VM was off); it was started again, and the disposable fleet test stack, which has no restart policy, was started by hand.
+
+### Results
+| Check | Result |
+|---|---|
+| CI on the Task 8 branch | green on every push (ROS job about 4 minutes including the 165 s replay) |
+| CI can fail | 0.05 m threshold: replay mean 0.0606 m, FAIL, exit 1 (run 38838785876); restored 0.08 m: PASS (run 38977889671) |
+| Replay baseline | 0.0606 to 0.0612 m over 5 local replays; 0.0606 and 0.0608 m on GitHub's runner |
+| Fresh clone following the README | working demo: both robots registered with the fleet, a map click sent robot1 to the clicked point, `succeeded` in 18 s, 0 Nav2 lifecycle failures |
+| README numbers | each traced to a file in `benchmarks/results/` (or `benchmarks/baseline.json`) |
