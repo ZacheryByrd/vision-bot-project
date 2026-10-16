@@ -206,6 +206,29 @@ def test_telemetry_errors_do_not_stop_goal_polling():
     assert nav.sent == [Goal("4", 1.0, 1.0, 0.0)]
 
 
+def _drive_to(client, nav, goal, stop_at):
+    c = core(client, nav)
+    client.goals = [goal]
+    c.step(0.0)
+    c.on_nav_result(goal.goal_id, "accepted")
+    c.update_pose(*stop_at)
+    c.on_nav_result(goal.goal_id, "succeeded")
+    c.step(0.1)
+    return client.reports
+
+
+def test_success_far_from_the_requested_goal_is_reported_failed():
+    # Gate 7: a goal on a wall; Nav2's planner re-targeted it to the nearest
+    # free cell and reported success with the robot 0.33 m from the goal.
+    reports = _drive_to(FakeClient(), Nav2(), Goal("16", 1.50, -2.48, 0.0), (1.18, -2.40, 0.0))
+    assert reports == [("16", "accepted"), ("16", "failed")]
+
+
+def test_success_at_the_goal_is_reported_succeeded():
+    reports = _drive_to(FakeClient(), Nav2(), Goal("15", 2.99, -0.29, 0.0), (2.90, -0.31, 0.0))
+    assert reports == [("15", "accepted"), ("15", "succeeded")]
+
+
 def test_battery_drains_with_distance_and_stops_at_zero():
     b = SimulatedBattery(drain_pct_per_m=0.5)
     b.update(0.0, 0.0)

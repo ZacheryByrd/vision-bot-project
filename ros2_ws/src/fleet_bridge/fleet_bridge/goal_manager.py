@@ -23,10 +23,15 @@ class GoalManager:
         self._cancel = cancel
         self._report = report
         self._active: Optional[str] = None
+        self._goal: Optional[Goal] = None
 
     @property
     def active_goal_id(self) -> Optional[str]:
         return self._active
+
+    @property
+    def active_goal(self) -> Optional[Goal]:
+        return self._goal if self._active is not None else None
 
     def on_new_goal(self, goal: Goal) -> None:
         if goal.goal_id == self._active:
@@ -35,6 +40,7 @@ class GoalManager:
             self._cancel(self._active)
             self._report(self._active, "canceled")
         self._active = goal.goal_id
+        self._goal = goal
         try:
             self._send(goal)
         except Exception:

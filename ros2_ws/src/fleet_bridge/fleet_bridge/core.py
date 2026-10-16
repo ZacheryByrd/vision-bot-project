@@ -18,6 +18,13 @@ from fleet_bridge.goal_manager import GoalManager
 
 log = logging.getLogger(__name__)
 
+# Nav2 can report success short of an unreachable goal: NavFn re-targets it to
+# the nearest free cell within its tolerance and the controller checks arrival
+# against the end of that path (Gate 7: 0.33 m from a goal on a wall). Success
+# farther than this from the requested goal is reported as failed, the same
+# "truly arrived" threshold the Gate 4 benchmark uses (DECISIONS #48).
+ARRIVED_M = 0.30
+
 
 def backoff_s(attempt, base_s=1.0, cap_s=30.0):
     """Wait before retry number attempt + 1: 1, 2, 4, ... seconds, capped."""
@@ -82,6 +89,14 @@ class BridgeCore:
 
     def on_nav_result(self, goal_id, status):
         with self._lock:
+            goal = self._goals.active_goal
+            if status == "succeeded" and goal is not None and goal.goal_id == goal_id \
+                    and self._pose is not None:
+                miss = math.dist(self._pose[:2], (goal.x, goal.y))
+                if miss > ARRIVED_M:
+                    log.warning("goal %s: Nav2 reported success %.2f m from the goal; "
+                                "reporting failed", goal_id, miss)
+                    status = "aborted"
             self._goals.on_result(goal_id, status)
 
     def _queue_report(self, goal_id, status):
