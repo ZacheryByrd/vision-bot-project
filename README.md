@@ -281,7 +281,7 @@ Against a scripted stand-in robot that never yields (`plugin_ab_20261010_065758`
 
 ### Run it
 
-From the repo root on Windows (Docker Desktop). The fleet API used here is a disposable copy on port 8001 built from the fleet repo's `v2/goals-api` branch; see `docker/fleet-test-stack.yml` and `scripts/seed_fleet.py` for setting it up from scratch.
+From the repo root on Windows (Docker Desktop). The fleet API used here is a disposable copy on port 8001 built from a checkout of the fleet repo's `v2/goals-api` branch (`docker/fleet-test-stack.yml`); your own fleet stack on port 8000 is not touched.
 
 ```powershell
 # 1. fleet API (test copy, port 8001)
@@ -300,8 +300,30 @@ docker compose -f docker/docker-compose.yml exec ros bash
 # inside the container, once
 source /opt/ros/humble/setup.bash
 cd /workspace/ros2_ws && colcon build --symlink-install && source install/setup.bash
+```
 
+**First time only: accounts.** The bridge and the dashboard each log into the fleet with their own operator account; `scripts/seed_fleet.py` creates them (and the two robots) using an admin account and writes the credentials into git-ignored env files. On the test stack, the fleet repo's own seed script provides the admin account, with the defaults in its `backend/app/scripts/seed_e2e_users.py`:
+
+```powershell
+copy dashboard\.env.local.example dashboard\.env.local      # rosbridge / video URLs
+docker compose -f docker/fleet-test-stack.yml exec api python -m app.scripts.seed_e2e_users
+```
+
+```bash
+# inside the container
+export FLEET_API_BASE_URL=http://host.docker.internal:8001/api/v1
+export FLEET_ADMIN_USER=e2e-admin@example.com FLEET_ADMIN_PASSWORD=<E2E_ADMIN_PASSWORD from seed_e2e_users.py>
+cd /workspace/vision-bot-project
+python3 scripts/seed_fleet.py \
+  --account vision-bot-bridge@example.com ros2_ws/src/fleet_bridge/.env http://host.docker.internal:8001/api/v1 \
+  --account vision-bot-dashboard@example.com dashboard/.env.local http://localhost:8001/api/v1
+```
+
+Re-running it is safe; after the test stack is reset it recreates the accounts with the passwords already in the env files.
+
+```bash
 # terminal A: both robots (add gui:=false without an X server)
+source /workspace/ros2_ws/install/setup.bash
 ros2 launch vision_bot_nav multi_robot.launch.py rviz:=true
 
 # terminal B: the fleet bridges

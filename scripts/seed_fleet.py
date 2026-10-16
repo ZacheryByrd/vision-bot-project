@@ -56,8 +56,24 @@ def operator_account(base_url, user, env_file, account_api_url, admin):
     existing = read_env(env_file)
     if existing.get("FLEET_USER") == user and existing.get("FLEET_PASSWORD"):
         account = FleetClient(base_url, user, existing["FLEET_PASSWORD"], UrllibSession())
+        try:
+            account.login()
+            return account, "already set up"
+        except FleetAuthError:
+            pass
+        # The env file has credentials the fleet no longer knows (for example a
+        # test stack that was reset): recreate the account with that password.
+        try:
+            admin.request("POST", "/users", json={
+                "email": user, "full_name": user.split("@")[0],
+                "password": existing["FLEET_PASSWORD"], "role_name": "operator"})
+        except FleetError as err:
+            if err.status == 409:
+                sys.exit(f"{user} exists with a password other than the one in {env_file}; "
+                         "reset it in the fleet admin UI or choose another account")
+            raise
         account.login()
-        return account, "already set up"
+        return account, "recreated with the password in its env file (the fleet had been reset)"
     password = secrets.token_urlsafe(18)
     try:
         admin.request("POST", "/users", json={"email": user, "full_name": user.split("@")[0],
