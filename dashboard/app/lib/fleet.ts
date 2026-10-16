@@ -38,13 +38,19 @@ export function createFleetClient(config: {
     const headers: Record<string, string> = { Accept: "application/json" };
     if (init.type) headers["Content-Type"] = init.type;
     if (init.token) headers.Authorization = `Bearer ${init.token}`;
-    try {
-      return await fetchFn(base + path + query, {
-        method, headers, body: init.body, cache: "no-store",
-      });
-    } catch (err) {
-      const cause = (err as { cause?: { code?: string } })?.cause?.code ?? String(err);
-      throw new FleetUnavailable(`${method} ${path}: no answer from the fleet API (${cause})`);
+    // A pooled keep-alive connection that the API closed while idle (uvicorn
+    // does after 5 s) fails with ECONNRESET before the API reads the request,
+    // so one retry on a fresh connection is safe even for a POST (Gate 7).
+    for (let attempt = 0; ; attempt++) {
+      try {
+        return await fetchFn(base + path + query, {
+          method, headers, body: init.body, cache: "no-store",
+        });
+      } catch (err) {
+        const cause = (err as { cause?: { code?: string } })?.cause?.code ?? String(err);
+        if (cause === "ECONNRESET" && attempt === 0) continue;
+        throw new FleetUnavailable(`${method} ${path}: no answer from the fleet API (${cause})`);
+      }
     }
   }
 
@@ -64,7 +70,17 @@ export function createFleetClient(config: {
     refresh = body.refresh_token;
   }
 
-  async function login() {
+  // Requests that arrive before there is a token wait for one shared login.
+  let loggingIn: Promise<void> | null = null;
+
+  function login() {
+    loggingIn ??= doLogin().finally(() => {
+      loggingIn = null;
+    });
+    return loggingIn;
+  }
+
+  async function doLogin() {
     const resp = await send("POST", "/auth/login", {
       body: new URLSearchParams({ username: config.user, password: config.password }).toString(),
       type: "application/x-www-form-urlencoded",

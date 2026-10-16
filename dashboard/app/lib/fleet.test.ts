@@ -94,6 +94,45 @@ describe("fleet client", () => {
     expect(err.message).toContain("Robot not found");
   });
 
+  it("retries once when a reused connection was already closed by the API", async () => {
+    // uvicorn closes idle keep-alive connections after 5 s; a request that
+    // lands on one fails with ECONNRESET before the API reads it (Gate 7).
+    const reset = Object.assign(new TypeError("fetch failed"), { cause: { code: "ECONNRESET" } });
+    const { fetchFn, calls } = fakeFetch({
+      "POST /auth/login": [tokens(1)],
+      "POST /robots/1/goals": [reset, { status: 201, body: { id: 5 } }],
+    });
+    const goal = await client(fetchFn).request("POST", "/robots/1/goals", { json: { x: 1, y: 2 } });
+    expect(goal).toEqual({ id: 5 });
+    expect(calls.filter((c) => c.path === "/robots/1/goals")).toHaveLength(2);
+  });
+
+  it("gives up after a second connection reset", async () => {
+    const reset = () => Object.assign(new TypeError("fetch failed"), { cause: { code: "ECONNRESET" } });
+    const { fetchFn } = fakeFetch({
+      "POST /auth/login": [tokens(1)],
+      "GET /robots": [reset(), reset()],
+    });
+    await expect(client(fetchFn).request("GET", "/robots")).rejects.toBeInstanceOf(FleetUnavailable);
+  });
+
+  it("does not retry a refused connection", async () => {
+    const refused = Object.assign(new TypeError("fetch failed"), { cause: { code: "ECONNREFUSED" } });
+    const { fetchFn, calls } = fakeFetch({ "POST /auth/login": [refused] });
+    await expect(client(fetchFn).request("GET", "/robots")).rejects.toBeInstanceOf(FleetUnavailable);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("shares one login between requests made before there is a token", async () => {
+    const { fetchFn, calls } = fakeFetch({
+      "POST /auth/login": [tokens(1)],
+      "GET /robots": [{ status: 200, body: { items: [] } }, { status: 200, body: { items: [] } }],
+    });
+    const c = client(fetchFn);
+    await Promise.all([c.request("GET", "/robots"), c.request("GET", "/robots")]);
+    expect(calls.filter((call) => call.path === "/auth/login")).toHaveLength(1);
+  });
+
   it("sends query parameters", async () => {
     const { fetchFn, calls } = fakeFetch({
       "POST /auth/login": [tokens(1)],
