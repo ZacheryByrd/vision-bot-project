@@ -74,3 +74,20 @@ def test_account_that_still_logs_in_is_left_alone(tmp_path, monkeypatch):
     _, outcome = seed_fleet.operator_account("http://x/api/v1", "u@example.com", env, "http://x",
                                              admin)
     assert admin.created == [] and outcome == "already set up"
+
+
+def test_placeholder_password_from_an_example_file_is_never_used(tmp_path, monkeypatch):
+    # Gate 8 fresh-clone run: dashboard/.env.local copied from the example
+    # carried FLEET_PASSWORD=change-me, which became the account's password.
+    import seed_fleet
+    monkeypatch.setattr(seed_fleet, "FleetClient", FakeAccount)
+    FakeAccount.known = set()
+    env = tmp_path / ".env.local"
+    env.write_text("NEXT_PUBLIC_X=1\nFLEET_USER=u@example.com\nFLEET_PASSWORD=change-me\n")
+    admin = FakeAdmin()
+    _, outcome = seed_fleet.operator_account("http://x/api/v1", "u@example.com", env, "http://x",
+                                             admin)
+    assert admin.created[0]["password"] != "change-me"
+    assert "created" in outcome
+    text = env.read_text()
+    assert "change-me" not in text and text.startswith("NEXT_PUBLIC_X=1\n")

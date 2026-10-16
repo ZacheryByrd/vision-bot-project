@@ -31,6 +31,8 @@ from fleet_bridge.client import FleetAuthError, FleetClient, FleetError, UrllibS
 
 ROBOTS = (("VB-SIM-1", "robot1"), ("VB-SIM-2", "robot2"))
 KEYS = ("FLEET_API_BASE_URL", "FLEET_USER", "FLEET_PASSWORD")
+# Placeholder values in the committed example files; never a real password.
+PLACEHOLDER_PASSWORDS = {"change-me"}
 
 
 def read_env(path):
@@ -54,7 +56,8 @@ def merge_env(text, values):
 
 def operator_account(base_url, user, env_file, account_api_url, admin):
     existing = read_env(env_file)
-    if existing.get("FLEET_USER") == user and existing.get("FLEET_PASSWORD"):
+    if existing.get("FLEET_USER") == user and existing.get("FLEET_PASSWORD") \
+            and existing["FLEET_PASSWORD"] not in PLACEHOLDER_PASSWORDS:
         account = FleetClient(base_url, user, existing["FLEET_PASSWORD"], UrllibSession())
         try:
             account.login()
