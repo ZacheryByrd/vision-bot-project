@@ -24,8 +24,11 @@ export function createFleetClient(config: {
   user: string;
   password: string;
   fetchFn?: typeof fetch;
+  /** Give up on a request with no answer after this long (default 10 s). */
+  timeoutMs?: number;
 }): FleetClient {
   const fetchFn = config.fetchFn ?? fetch;
+  const timeoutMs = config.timeoutMs ?? 10_000;
   const base = config.baseUrl.replace(/\/$/, "");
   let access: string | null = null;
   let refresh: string | null = null;
@@ -45,9 +48,12 @@ export function createFleetClient(config: {
       try {
         return await fetchFn(base + path + query, {
           method, headers, body: init.body, cache: "no-store",
+          signal: AbortSignal.timeout(timeoutMs),
         });
       } catch (err) {
-        const cause = (err as { cause?: { code?: string } })?.cause?.code ?? String(err);
+        const e = err as { name?: string; cause?: { code?: string } };
+        const cause = e?.name === "TimeoutError" ? `no answer in ${timeoutMs} ms`
+          : e?.cause?.code ?? String(err);
         if (cause === "ECONNRESET" && attempt === 0) continue;
         throw new FleetUnavailable(`${method} ${path}: no answer from the fleet API (${cause})`);
       }

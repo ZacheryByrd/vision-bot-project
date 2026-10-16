@@ -123,6 +123,22 @@ describe("fleet client", () => {
     expect(calls).toHaveLength(1);
   });
 
+  it("gives up on a request that gets no answer within the timeout", async () => {
+    // Docker Desktop's port forwarding can hold a connection for a minute
+    // under load (Gate 7); the next poll should not wait behind it.
+    const hanging = ((_: unknown, init?: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () =>
+          reject(Object.assign(new Error("aborted"), { name: "TimeoutError" })));
+      })) as typeof fetch;
+    const c = createFleetClient({
+      baseUrl: "http://fleet.test/api/v1", user: "u", password: "p", fetchFn: hanging, timeoutMs: 50,
+    });
+    const started = Date.now();
+    await expect(c.request("GET", "/robots")).rejects.toBeInstanceOf(FleetUnavailable);
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
   it("shares one login between requests made before there is a token", async () => {
     const { fetchFn, calls } = fakeFetch({
       "POST /auth/login": [tokens(1)],

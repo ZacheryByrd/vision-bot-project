@@ -10,3 +10,5 @@ __pycache__/
 /log/
 # fleet_bridge credentials (template: ros2_ws/src/fleet_bridge/.env.example)
 .env
+# TypeScript incremental build cache
+dashboard/tsconfig.tsbuildinfo
