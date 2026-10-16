@@ -6,7 +6,7 @@
   "baseline_runs_mean_m": [0.0607, 0.0606, 0.0606, 0.0607, 0.0612],
   "baseline_mean_m": 0.0608,
   "margin_m": 0.02,
-  "threshold_m": 0.08,
+  "threshold_m": 0.05,
   "margin_reason": "about 30 times the run-to-run spread of 5 local replays (0.0006 m), so slower CI hardware does not fail it, while a third worse EKF does",
   "raw_output": "benchmarks/results/replay_regression_baseline_20261016.txt"
 }
