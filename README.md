@@ -281,7 +281,7 @@ Against a scripted stand-in robot that never yields (`plugin_ab_20261010_065758`
 
 ### Run it
 
-From the repo root on Windows (Docker Desktop). The fleet API used here is a disposable copy on port 8001 built from a checkout of the fleet repo's `v2/goals-api` branch (`docker/fleet-test-stack.yml`); your own fleet stack on port 8000 is not touched.
+From the repo root on Windows (Docker Desktop). The fleet API used here is a disposable copy on port 8001 built from a checkout of the fleet repo's `main` (`docker/fleet-test-stack.yml`; the goal endpoints were merged in ZacheryByrd/robot-fleet-managment-system#12); your own fleet stack on port 8000 is not touched.
 
 ```powershell
 # 1. fleet API (test copy, port 8001)
@@ -354,4 +354,3 @@ Open http://localhost:3001, scroll to **Map**, and click: the goal goes to the c
 - **Two robots can stand off.** When both robots see each other at the same moment they can stop face to face (1 of 10 crossing trials); breaking it needs a right-of-way rule or motion prediction, not built.
 - **Goals on thin walls.** A click on a 5 to 10 cm wall can end `succeeded` with the robot against the wall about 0.30 m from the clicked point; goals the robot cannot get within 0.30 m of are reported `failed` (DECISIONS #71).
 - **Machine limits.** On the 8 GB development PC, two robots plus the fleet stack and a browser ran out of memory; stalls then broke Nav2's heartbeats. Gate runs counted those failures and discarded affected runs.
-- **The fleet changes are on a branch.** The goal endpoints live on the fleet repo's `v2/goals-api` branch and run in a separate test stack; they are not merged into the fleet's `main`.
