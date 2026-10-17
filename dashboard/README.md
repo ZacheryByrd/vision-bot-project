@@ -46,3 +46,23 @@ status panel component, a manual/autonomous control panel toggle
 the page layout. Left for you: styling polish, and a connection-lost/
 reconnect state -- right now `connected` just goes false and stays
 there if the WebSocket drops, no retry.
+
+## Map view (v2)
+
+Below the camera panels, the map view shows every fleet robot that reports a
+map pose (from the robot-fleet-management API) and sends a navigation goal to
+the chosen robot, or the nearest idle one, when you click the map. Goals go
+through the fleet API, never rosbridge; each robot's `fleet_bridge` picks them
+up and reports progress.
+
+The browser only talks to this app's own server routes (`app/api/fleet/`),
+which log into the fleet API with an operator account from `.env.local`
+(`FLEET_API_BASE_URL`, `FLEET_USER`, `FLEET_PASSWORD`; see `.env.local.example`).
+`scripts/seed_fleet.py --account <email> dashboard/.env.local <api url>` creates
+that account and writes the three lines. The map image and its metadata in
+`public/maps/` come from `scripts/map_to_png.py`.
+
+```bash
+npm test          # vitest: map math, fleet client, robot selection
+npm run build && npm run start -- -p 3001   # port 3000 is the fleet frontend's
+```

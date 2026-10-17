@@ -1,0 +1,5 @@
+scenario,seed,layer_enabled,robot2_x,robot2_y,robot2_yaw,robot2_delay_s,status,success,time_s,path_length_m,final_error_m,recoveries,min_separation_m,contact
+parked_doorway,0,False,1.500,-0.347,0.080,0.00,succeeded,True,15.00,2.214,0.802,0,0.195,True
+parked_doorway,0,True,1.500,-0.347,0.080,0.00,succeeded,True,16.60,2.994,0.128,0,0.401,False
+crossing,0,True,0.300,0.600,-1.571,1.61,aborted,False,35.10,2.917,2.342,21,0.191,True
+crossing,0,False,0.300,0.600,-1.571,1.61,succeeded,True,19.80,4.331,0.142,0,0.193,True

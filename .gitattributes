@@ -1,0 +1,8 @@
+# Files that run inside the Linux container keep LF even on Windows
+# checkouts with core.autocrlf=true: shell scripts, and Python files, which
+# may be executables whose "#!/usr/bin/env python3" line breaks with CRLF.
+*.sh text eol=lf
+*.py text eol=lf
+# Saved maps are binary images; never convert their bytes.
+*.pgm binary
+*.png binary

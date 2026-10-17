@@ -1,0 +1,151 @@
+# vision_bot v2 RViz config. Fixed frame is map: slam_toolbox (mapping) or
+# AMCL (navigation) provides map -> odom, the EKF odom -> base_link. With
+# nav_sim.launch.py alone there is no map frame; switch Fixed Frame to odom.
+# The lidar publishes best-effort (sensor QoS); a reliable subscription
+# would receive nothing, hence the LaserScan reliability setting. Maps are
+# published transient-local, hence the Map durability setting.
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+    Help Height: 0
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 1
+      Plane Cell Count: 12
+      Reference Frame: <Fixed Frame>
+      Color: 160; 160; 164
+      Value: true
+    - Class: rviz_default_plugins/Map
+      Name: Map
+      Enabled: true
+      Alpha: 0.8
+      Color Scheme: map
+      Draw Behind: true
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: map
+      Value: true
+    # Nav2 displays (empty unless nav2.launch.py is running).
+    - Class: rviz_default_plugins/Map
+      Name: Global costmap
+      Enabled: true
+      Alpha: 0.3
+      Color Scheme: costmap
+      Draw Behind: false
+      Topic:
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: global_costmap/costmap
+      Value: true
+    - Class: rviz_default_plugins/Path
+      Name: Global plan
+      Enabled: true
+      Color: 25; 200; 25
+      Line Style: Billboards
+      Line Width: 0.04
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: plan
+      Value: true
+    - Class: rviz_default_plugins/Path
+      Name: Local plan
+      Enabled: true
+      Color: 255; 160; 0
+      Line Style: Billboards
+      Line Width: 0.03
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: local_plan
+      Value: true
+    - Class: nav2_rviz_plugins/ParticleCloud
+      Name: AMCL particles
+      Enabled: true
+      Color: 0; 180; 255
+      Shape: Arrow (Flat)
+      Arrow Length: 0.08
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: particle_cloud
+      Value: true
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Enabled: true
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: robot_description
+      Value: true
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Show Names: true
+      Show Axes: true
+      Show Arrows: false
+      Marker Scale: 0.5
+      Value: true
+    - Class: rviz_default_plugins/LaserScan
+      Name: LaserScan
+      Enabled: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: scan
+      Style: Points
+      Size (Pixels): 4
+      Size (m): 0.05
+      Color Transformer: FlatColor
+      Color: 255; 40; 40
+      Decay Time: 0
+      Value: true
+  Global Options:
+    Background Color: 40; 40; 40
+    Fixed Frame: map
+    Frame Rate: 30
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Measure
+    - Class: rviz_default_plugins/SetInitialPose
+      Topic:
+        Value: initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Value: goal_pose
+  Views:
+    Current:
+      Class: rviz_default_plugins/TopDownOrtho
+      Name: Current View
+      Angle: 0
+      Scale: 55
+      X: 0
+      Y: 0
+      Target Frame: <Fixed Frame>
+      Value: TopDownOrtho (rviz_default_plugins)
+Window Geometry:
+  Displays:
+    collapsed: true
+  Width: 1000
+  Height: 900

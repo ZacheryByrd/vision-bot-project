@@ -6,3 +6,13 @@ dashboard/.next/
 dashboard/.env.local
 __pycache__/
 *.pyc
+# colcon writes log/ in the directory it runs from
+/log/
+# fleet_bridge credentials (template: ros2_ws/src/fleet_bridge/.env.example)
+.env
+# TypeScript incremental build cache
+dashboard/tsconfig.tsbuildinfo
+# CI artifact of benchmarks/replay_regression.py
+benchmarks/replay_result.json
+# ros2 bag play decompresses the zstd bag next to it; only the .zstd is kept
+benchmarks/bags/*/*.db3

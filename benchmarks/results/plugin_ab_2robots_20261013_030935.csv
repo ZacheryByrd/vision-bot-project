@@ -1,0 +1,41 @@
+scenario,seed,layer_enabled,robot2_x,robot2_y,robot2_yaw,robot2_delay_s,status,success,time_s,path_length_m,final_error_m,recoveries,min_separation_m,contact,robot2_status
+parked_doorway,0,False,1.500,-0.347,0.080,0.00,succeeded,True,14.00,1.550,1.452,0,0.201,False,no goal
+parked_doorway,0,True,1.500,-0.347,0.080,0.00,succeeded,True,16.60,2.947,0.180,0,0.410,False,no goal
+crossing,0,True,0.300,0.600,-1.571,1.61,succeeded,True,20.50,4.473,0.179,0,0.658,False,succeeded
+crossing,0,False,0.300,0.600,-1.571,1.61,succeeded,True,17.90,4.236,0.168,0,0.714,False,succeeded
+parked_doorway,1,True,1.500,-0.394,0.139,0.00,succeeded,True,16.30,3.024,0.105,0,0.449,False,no goal
+parked_doorway,1,False,1.500,-0.394,0.139,0.00,succeeded,True,13.80,1.345,1.659,0,0.226,False,no goal
+crossing,1,False,0.300,0.600,-1.571,3.12,succeeded,True,18.00,4.267,0.137,0,0.394,False,succeeded
+crossing,1,True,0.300,0.600,-1.571,3.12,succeeded,True,23.20,4.458,0.167,3,0.365,False,succeeded
+parked_doorway,2,False,1.500,-0.327,0.115,0.00,succeeded,True,14.40,1.447,1.557,0,0.201,False,no goal
+parked_doorway,2,True,1.500,-0.327,0.115,0.00,succeeded,True,17.00,2.988,0.144,0,0.386,False,no goal
+crossing,2,True,0.300,0.600,-1.571,0.24,succeeded,True,21.30,4.593,0.145,0,0.816,False,succeeded
+crossing,2,False,0.300,0.600,-1.571,0.24,succeeded,True,18.00,4.261,0.148,0,0.967,False,succeeded
+parked_doorway,3,True,1.500,-0.260,-0.215,0.00,succeeded,True,16.70,3.028,0.117,0,0.459,False,no goal
+parked_doorway,3,False,1.500,-0.260,-0.215,0.00,succeeded,True,13.80,1.359,1.647,0,0.223,False,no goal
+crossing,3,False,0.300,0.600,-1.571,3.43,succeeded,True,17.80,4.257,0.162,0,0.348,False,succeeded
+crossing,3,True,0.300,0.600,-1.571,3.43,succeeded,True,23.70,4.660,0.171,0,0.358,False,succeeded
+parked_doorway,4,False,1.500,-0.241,0.026,0.00,succeeded,True,14.30,1.424,1.578,0,0.203,False,no goal
+parked_doorway,4,True,1.500,-0.241,0.026,0.00,succeeded,True,16.50,3.034,0.116,0,0.479,False,no goal
+crossing,4,True,0.300,0.600,-1.571,2.57,succeeded,True,22.00,4.638,0.116,0,0.537,False,succeeded
+crossing,4,False,0.300,0.600,-1.571,2.57,succeeded,True,18.00,4.262,0.142,0,0.485,False,succeeded
+parked_doorway,5,True,1.500,-0.371,0.263,0.00,succeeded,True,17.10,3.044,0.122,0,0.454,False,no goal
+parked_doorway,5,False,1.500,-0.371,0.263,0.00,succeeded,True,13.90,1.395,1.611,0,0.216,False,no goal
+crossing,5,False,0.300,0.600,-1.571,4.41,succeeded,True,20.00,4.376,0.144,0,0.190,True,succeeded
+crossing,5,True,0.300,0.600,-1.571,4.41,succeeded,True,24.50,4.561,0.134,2,0.312,False,succeeded
+parked_doorway,6,False,1.500,-0.332,0.259,0.00,succeeded,True,14.00,1.427,1.582,0,0.210,False,no goal
+parked_doorway,6,True,1.500,-0.332,0.259,0.00,succeeded,True,16.90,3.061,0.107,0,0.440,False,no goal
+crossing,6,True,0.300,0.600,-1.571,0.65,succeeded,True,21.10,4.576,0.117,0,0.821,False,succeeded
+crossing,6,False,0.300,0.600,-1.571,0.65,succeeded,True,18.40,4.364,0.047,0,0.818,False,succeeded
+parked_doorway,7,True,1.500,-0.297,-0.005,0.00,succeeded,True,17.00,3.043,0.122,0,0.406,False,no goal
+parked_doorway,7,False,1.500,-0.297,-0.005,0.00,succeeded,True,13.50,1.433,1.568,0,0.198,True,no goal
+crossing,7,False,0.300,0.600,-1.571,0.88,succeeded,True,18.10,4.324,0.112,0,0.835,False,succeeded
+crossing,7,True,0.300,0.600,-1.571,0.88,succeeded,True,20.80,4.571,0.146,0,0.911,False,succeeded
+parked_doorway,8,False,1.500,-0.209,0.171,0.00,succeeded,True,14.50,1.391,1.620,0,0.216,False,no goal
+parked_doorway,8,True,1.500,-0.209,0.171,0.00,succeeded,True,16.20,3.040,0.088,0,0.481,False,no goal
+crossing,8,True,0.300,0.600,-1.571,5.25,aborted,False,34.90,2.507,1.982,21,0.269,False,aborted
+crossing,8,False,0.300,0.600,-1.571,5.25,succeeded,True,22.60,4.497,0.122,0,0.190,True,succeeded
+parked_doorway,9,True,1.500,-0.267,-0.193,0.00,succeeded,True,16.60,3.018,0.134,0,0.468,False,no goal
+parked_doorway,9,False,1.500,-0.267,-0.193,0.00,succeeded,True,13.70,1.416,1.590,0,0.205,False,no goal
+crossing,9,False,0.300,0.600,-1.571,3.47,succeeded,True,17.80,4.243,0.162,0,0.359,False,succeeded
+crossing,9,True,0.300,0.600,-1.571,3.47,succeeded,True,27.00,4.477,0.124,3,0.310,False,succeeded

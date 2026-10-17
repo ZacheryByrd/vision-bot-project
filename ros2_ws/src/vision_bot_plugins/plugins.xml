@@ -1,0 +1,8 @@
+<library path="vision_bot_plugins">
+  <class type="vision_bot_plugins::RobotAvoidanceLayer" base_class_type="nav2_costmap_2d::Layer">
+    <description>
+      Marks other robots' shared poses (geometry_msgs/PoseWithCovarianceStamped) as a
+      lethal disk with a decaying cost around it, ignoring poses older than max_pose_age_s.
+    </description>
+  </class>
+</library>

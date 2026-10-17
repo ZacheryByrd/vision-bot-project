@@ -44,6 +44,9 @@ services:
       - LIBGL_ALWAYS_SOFTWARE=1
     volumes:
       - ../ros2_ws:/workspace/ros2_ws
+      # Whole repo, so repo-root scripts/ (check_v1.sh) and v2 benchmarks/
+      # can run inside the container. Build from /workspace/ros2_ws as before.
+      - ..:/workspace/vision-bot-project
     ports:
       - "9091:9090"
       - "8081:8080"
