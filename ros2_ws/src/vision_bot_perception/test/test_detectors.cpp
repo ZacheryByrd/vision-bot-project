@@ -14,6 +14,7 @@
 using vision_bot_perception::Detection;
 using vision_bot_perception::HsvParams;
 using vision_bot_perception::detect_target;
+using vision_bot_perception::dnn_detect_target;
 
 namespace
 {
@@ -24,9 +25,20 @@ nlohmann::json reference()
   return nlohmann::json::parse(in);
 }
 
+// "vision_bot/..." paths are in the vision_bot package (the person photo);
+// the rest are in test/fixtures.
+std::string fixture_path(const std::string & name)
+{
+  const std::string prefix = "vision_bot/";
+  if (name.rfind(prefix, 0) == 0) {
+    return std::string(VISION_BOT_SRC_DIR) + "/" + name.substr(prefix.size());
+  }
+  return std::string(FIXTURE_DIR) + "/" + name;
+}
+
 cv::Mat fixture(const std::string & name)
 {
-  cv::Mat frame = cv::imread(std::string(FIXTURE_DIR) + "/" + name, cv::IMREAD_COLOR);
+  cv::Mat frame = cv::imread(fixture_path(name), cv::IMREAD_COLOR);
   EXPECT_FALSE(frame.empty()) << name;
   return frame;
 }
@@ -72,4 +84,26 @@ TEST(HsvDetector, DebugFrameSameSizeAsInput)
 TEST(HsvDetector, NullDebugDoesNotCrash)
 {
   EXPECT_TRUE(detect_target(fixture("hsv_centered.png"), HsvParams{}, nullptr).detected);
+}
+
+TEST(DnnReference, MatchesPythonOnEveryFixture)
+{
+  const std::string models = std::string(VISION_BOT_SRC_DIR) + "/models/dnn/";
+  const std::string prototxt = models + "MobileNetSSD_deploy.prototxt";
+  const std::string model = models + "MobileNetSSD_deploy.caffemodel";
+  if (!std::ifstream(prototxt) || !std::ifstream(model)) {
+    GTEST_SKIP() << "MobileNetSSD model files not present in " << models;
+  }
+  cv::dnn::Net net = cv::dnn::readNetFromCaffe(prototxt, model);
+
+  const auto cases = reference()["dnn"];
+  ASSERT_GE(cases.size(), 4u);
+  for (const auto & c : cases) {
+    const std::string name = c["image"];
+    const Detection d = dnn_detect_target(fixture(name), net, c["target_class_id"].get<int>(),
+        c["confidence_threshold"].get<double>(), nullptr);
+    expect_matches(d, c["expected"], 1e-3,
+      name + " class " + c["target_class_id"].dump() + " threshold " +
+      c["confidence_threshold"].dump());
+  }
 }

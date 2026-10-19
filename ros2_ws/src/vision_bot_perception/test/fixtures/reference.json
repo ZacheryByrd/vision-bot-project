@@ -204,5 +204,67 @@
     1.0
    ]
   }
+ ],
+ "dnn": [
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 15,
+   "confidence_threshold": 0.5,
+   "expected": [
+    1.0,
+    0.01752150058746338,
+    0.05542251467704773,
+    0.578976114023213,
+    0.9998220801353455
+   ]
+  },
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 15,
+   "confidence_threshold": 0.99,
+   "expected": [
+    1.0,
+    0.01752150058746338,
+    0.05542251467704773,
+    0.578976114023213,
+    0.9998220801353455
+   ]
+  },
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 15,
+   "confidence_threshold": 1.01,
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 7,
+   "confidence_threshold": 0.5,
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "image": "hsv_empty.png",
+   "target_class_id": 15,
+   "confidence_threshold": 0.5,
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
  ]
 }

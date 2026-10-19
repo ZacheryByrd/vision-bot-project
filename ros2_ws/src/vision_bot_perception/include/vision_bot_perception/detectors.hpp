@@ -5,6 +5,7 @@
 #pragma once
 
 #include <opencv2/core.hpp>
+#include <opencv2/dnn.hpp>
 
 namespace vision_bot_perception
 {
@@ -35,5 +36,13 @@ struct HsvParams
 // detector has no real score). If debug is not null it receives a copy of
 // the frame with the box, centroid and center line drawn on it.
 Detection detect_target(const cv::Mat & bgr, const HsvParams & params, cv::Mat * debug);
+
+// MobileNet-SSD (Caffe) via cv::dnn: the highest-scoring detection of
+// target_class_id at or above confidence_threshold. Confidence is the model
+// score. net is loaded once by the caller (readNetFromCaffe). Same debug
+// drawing as detect_target.
+Detection dnn_detect_target(
+  const cv::Mat & bgr, cv::dnn::Net & net, int target_class_id,
+  double confidence_threshold, cv::Mat * debug);
 
 }  // namespace vision_bot_perception

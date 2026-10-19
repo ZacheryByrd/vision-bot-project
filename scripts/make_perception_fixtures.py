@@ -20,7 +20,16 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ros2_ws" / "src" / "vision_bot"))
 
-from vision_bot.perception_node import detect_target  # noqa: E402
+from vision_bot.perception_node import detect_target, dnn_detect_target  # noqa: E402
+
+VISION_BOT = Path(__file__).resolve().parents[1] / "ros2_ws" / "src" / "vision_bot"
+# Paths starting with "vision_bot/" are relative to ros2_ws/src (the model
+# files and the person photo stay in the vision_bot package); others are
+# relative to the fixture directory.
+PERSON_IMAGE = "vision_bot/worlds/models/person_photo_model/materials/textures/person.png"
+DNN_PROTOTXT = VISION_BOT / "models" / "dnn" / "MobileNetSSD_deploy.prototxt"
+DNN_MODEL = VISION_BOT / "models" / "dnn" / "MobileNetSSD_deploy.caffemodel"
+PERSON_CLASS_ID, CAR_CLASS_ID = 15, 7
 
 WIDTH, HEIGHT = 320, 240
 BACKGROUND = (40, 40, 40)
@@ -59,6 +68,23 @@ def make_hsv_cases():
     ]
 
 
+def make_dnn_cases():
+    """(image, target_class_id, confidence_threshold) for the DNN detector."""
+    return [
+        (PERSON_IMAGE, PERSON_CLASS_ID, 0.5),
+        (PERSON_IMAGE, PERSON_CLASS_ID, 0.99),
+        (PERSON_IMAGE, PERSON_CLASS_ID, 1.01),  # unreachable, as in the Python test
+        (PERSON_IMAGE, CAR_CLASS_ID, 0.5),
+        ("hsv_empty.png", PERSON_CLASS_ID, 0.5),
+    ]
+
+
+def image_path(out_dir, image):
+    if image.startswith("vision_bot/"):
+        return VISION_BOT.parent / image
+    return out_dir / image
+
+
 def as_expected(result):
     detected, offset_x, offset_y, area_fraction, confidence, _ = result
     return [1.0 if detected else 0.0, float(offset_x), float(offset_y),
@@ -75,8 +101,16 @@ def main(out_dir):
         on_disk = cv2.imread(str(out_dir / image))
         hsv.append({"image": image, "params": params,
                     "expected": as_expected(detect_target(on_disk, **params))})
-    (out_dir / "reference.json").write_text(json.dumps({"hsv": hsv}, indent=1) + "\n")
-    print(f"{len(hsv)} HSV cases written to {out_dir}")
+    net = cv2.dnn.readNetFromCaffe(str(DNN_PROTOTXT), str(DNN_MODEL))
+    dnn = []
+    for image, class_id, threshold in make_dnn_cases():
+        frame = cv2.imread(str(image_path(out_dir, image)))
+        result = dnn_detect_target(frame, net=net, target_class_id=class_id,
+                                   confidence_threshold=threshold)
+        dnn.append({"image": image, "target_class_id": class_id,
+                    "confidence_threshold": threshold, "expected": as_expected(result)})
+    (out_dir / "reference.json").write_text(json.dumps({"hsv": hsv, "dnn": dnn}, indent=1) + "\n")
+    print(f"{len(hsv)} HSV and {len(dnn)} DNN cases written to {out_dir}")
 
 
 if __name__ == "__main__":
