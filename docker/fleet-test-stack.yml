@@ -1,9 +1,10 @@
 # Disposable robot-fleet-management API for fleet_bridge checks (DECISIONS,
 # 2026-10-14): its own Postgres with no host port and no volume, so `down`
 # deletes everything, and the API on host port 8001, so a fleet stack on
-# 8000 is never touched. Built from a fleet-repo checkout (FLEET_BACKEND).
+# 8000 is never touched. Built from a fleet-repo checkout of main: FLEET_BACKEND,
+# or by default a robot-fleet-management checkout next to this repo.
 #
-#   FLEET_BACKEND=C:/Users/zache/robot-fleet-management-v2/backend \
+#   FLEET_BACKEND=C:/path/to/robot-fleet-management/backend \
 #     docker compose -f docker/fleet-test-stack.yml up -d --build
 #   docker compose -f docker/fleet-test-stack.yml exec api python -m app.scripts.seed_e2e_users
 #   docker compose -f docker/fleet-test-stack.yml down
