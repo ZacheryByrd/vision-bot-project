@@ -15,11 +15,14 @@
 # Exit 0 = pass, 1 = fail.
 #
 # Overrides (optional): V1_NODES (space-separated node names), V1_CAMERA_TOPIC,
-# V1_TIMEOUT_S (seconds to wait for the nodes).
+# V1_TIMEOUT_S (seconds to wait for the nodes), V1_LAUNCH_ARGS (extra
+# sim_launch.py arguments, e.g. "perception_impl:=cpp" for the C++
+# perception_node).
 
 V1_NODES=${V1_NODES:-"perception_node motor_control_node"}
 V1_CAMERA_TOPIC=${V1_CAMERA_TOPIC:-/camera/image_raw}
 V1_TIMEOUT_S=${V1_TIMEOUT_S:-90}
+V1_LAUNCH_ARGS=${V1_LAUNCH_ARGS:-}
 
 REPO=$(cd "$(dirname "$0")/.." && pwd)
 OUT=$(mktemp -d /tmp/check_v1.XXXXXX)
@@ -70,8 +73,9 @@ log "build ok: $(grep -E '^Summary' "$OUT/build.log")"
 # shellcheck disable=SC1091
 source "$OUT/install/setup.bash"
 
-log "launching sim_launch.py headless"
-setsid xvfb-run -a ros2 launch vision_bot sim_launch.py gui:=false \
+log "launching sim_launch.py headless ${V1_LAUNCH_ARGS}"
+# shellcheck disable=SC2086  # V1_LAUNCH_ARGS is a list of key:=value words
+setsid xvfb-run -a ros2 launch vision_bot sim_launch.py gui:=false $V1_LAUNCH_ARGS \
     > "$OUT/launch.log" 2>&1 &
 LAUNCH_PID=$!
 

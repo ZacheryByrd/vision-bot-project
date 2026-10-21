@@ -18,7 +18,23 @@ target_include_directories(detectors PUBLIC
   $<INSTALL_INTERFACE:include>)
 target_link_libraries(detectors ${OpenCV_LIBS})
 
-install(TARGETS detectors
+find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+
+# The node (ROS plumbing around the detectors), as a component and as the
+# standalone executable perception_node.
+add_library(perception_component SHARED src/perception_node.cpp)
+target_link_libraries(perception_component detectors)
+ament_target_dependencies(perception_component
+  rclcpp rclcpp_components sensor_msgs std_msgs cv_bridge)
+rclcpp_components_register_node(perception_component
+  PLUGIN "vision_bot_perception::PerceptionNode"
+  EXECUTABLE perception_node)
+
+install(TARGETS detectors perception_component
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
@@ -32,6 +48,10 @@ if(BUILD_TESTING)
   target_compile_definitions(test_detectors PRIVATE
     FIXTURE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/fixtures"
     VISION_BOT_SRC_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../vision_bot")
+
+  # The node over ROS: topics, encodings, parameters, startup failure.
+  find_package(launch_testing_ament_cmake REQUIRED)
+  add_launch_test(test/test_perception_node.py TIMEOUT 120)
 endif()
 
 ament_package()

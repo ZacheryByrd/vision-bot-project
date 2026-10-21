@@ -39,7 +39,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node, PushRosNamespace, SetRemap
 from launch_ros.parameter_descriptions import ParameterValue
 
@@ -77,6 +77,10 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "line_follow", default_value="false",
             description="Start v1 perception + motor control, feeding cmd_vel_line."),
+        DeclareLaunchArgument(
+            "perception_impl", default_value="python",
+            description="perception_node implementation when line_follow is true: python "
+            "(vision_bot) or cpp (vision_bot_perception)."),
         DeclareLaunchArgument(
             "start_gazebo", default_value="true",
             description="Start gzserver/gzclient (false for every robot after the first)."),
@@ -169,7 +173,9 @@ def generate_launch_description():
     # line_follow_launch.py. Parameters only; no v1 code changes.
     line_follow = IfCondition(LaunchConfiguration("line_follow"))
     perception = Node(
-        package="vision_bot",
+        package=PythonExpression([
+            "'vision_bot_perception' if '", LaunchConfiguration("perception_impl"),
+            "' == 'cpp' else 'vision_bot'"]),
         executable="perception_node",
         name="perception_node",
         output="screen",

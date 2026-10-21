@@ -11,6 +11,8 @@ Run with:
 """
 
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 
 
@@ -24,8 +26,18 @@ def generate_launch_description():
         remappings=[("/image_raw", "/camera/image_raw")],
     )
 
+    # perception_node implementation: "python" (vision_bot) or "cpp"
+    # (vision_bot_perception, same node name, topics and parameters).
+    perception_impl_arg = DeclareLaunchArgument(
+        "perception_impl", default_value="python",
+        description="perception_node implementation: python (vision_bot) or cpp "
+        "(vision_bot_perception).",
+    )
+
     perception = Node(
-        package="vision_bot",
+        package=PythonExpression([
+            "'vision_bot_perception' if '", LaunchConfiguration("perception_impl"),
+            "' == 'cpp' else 'vision_bot'"]),
         executable="perception_node",
         name="perception_node",
         output="screen",
@@ -47,4 +59,4 @@ def generate_launch_description():
         output="screen",
     )
 
-    return LaunchDescription([camera, perception, motor_control, gpio_driver])
+    return LaunchDescription([perception_impl_arg, camera, perception, motor_control, gpio_driver])
