@@ -333,3 +333,23 @@ The mux forwards the highest-priority input that has published within 0.5 s, so 
 | Replay baseline | 0.0606 to 0.0612 m over 5 local replays; 0.0606 and 0.0608 m on GitHub's runner |
 | Fresh clone following the README | working demo: both robots registered with the fleet, a map click sent robot1 to the clicked point, `succeeded` in 18 s, 0 Nav2 lifecycle failures |
 | README numbers | each traced to a file in `benchmarks/results/` (or `benchmarks/baseline.json`) |
+
+## Gate 3 (C++ perception): perception_node in C++ (2026-10-21)
+
+### What was built
+- **`vision_bot_perception`**, a C++ package with the HSV and DNN detectors as a ROS-free library and `PerceptionNode`, an rclcpp component also built as the `perception_node` executable. It is a drop-in replacement for the Python node: same node name, topics, message layout and parameters.
+- **`perception_impl:=python|cpp`** on `sim_launch.py`, `nav_sim.launch.py` and `hardware_launch.py` (default `python`); `line_follow_launch.py` and `dnn_follow_launch.py` pick it up through their include of `sim_launch.py`. `check_v1.sh` takes `V1_LAUNCH_ARGS` so the same check runs on either implementation.
+
+### Worth being able to explain
+- **Equivalence is tested, not asserted.** The gtests run the C++ detectors on PNGs whose expected outputs came from the Python functions on the same pixels (1e-6 for HSV, 1e-3 for DNN). The launch test then checks the ROS side: rgb8 input is converted (Gazebo's camera is `R8G8B8`), the debug image keeps the input header, parameter changes apply on the next frame, `publish_debug_image:=false` skips the conversion and the publish, and a bad DNN model path kills the node at startup instead of leaving it publishing `detected=0`.
+- **Why a component.** The same class runs standalone or inside a component container with the camera driver, where intra-process transport can pass images without a copy. Nothing uses that yet; it costs nothing to keep open.
+
+### Results
+| Check | Result |
+|---|---|
+| `colcon test` on `vision_bot_perception` | 12 tests, 0 failures (4 gtests, 6 launch-test cases) |
+| Python tests | 165 passed |
+| `check_v1.sh` | PASS with the default (Python), PASS with `V1_LAUNCH_ARGS="perception_impl:=cpp"` (launch log shows the `(C++)` startup line) |
+| Red-box demo on the C++ node | stopped at area fraction 0.153 (threshold 0.15), centered within 0.041, held |
+| Line follow on the C++ node | 3.7 laps (1337 degrees around the track center) in 300 s, radius 0.89 to 0.92 m, every 13 to 15 s sample at least 52 degrees forward |
+| CI on the branch | green, run 39693523882 (ROS job and dashboard job) |
