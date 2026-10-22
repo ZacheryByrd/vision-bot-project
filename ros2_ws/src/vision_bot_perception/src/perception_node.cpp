@@ -8,8 +8,9 @@
 //               [detected, offset_x, offset_y, area_fraction, confidence]
 //             /vision_bot/debug_image sensor_msgs/Image (bgr8, input header)
 //
-// Built as a component (vision_bot_perception::PerceptionNode) and as the
-// standalone executable perception_node.
+// Built as a component (vision_bot_perception::PerceptionNode) and, through
+// make_perception_node and perception_main.cpp, as the standalone executable
+// perception_node.
 
 #include <memory>
 #include <stdexcept>
@@ -23,6 +24,7 @@
 #include <std_msgs/msg/float32_multi_array.hpp>
 
 #include "vision_bot_perception/detectors.hpp"
+#include "vision_bot_perception/perception_node.hpp"
 
 namespace vision_bot_perception
 {
@@ -119,6 +121,11 @@ private:
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr debug_pub_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr image_sub_;
 };
+
+rclcpp::Node::SharedPtr make_perception_node(const rclcpp::NodeOptions & options)
+{
+  return std::make_shared<PerceptionNode>(options);
+}
 
 }  // namespace vision_bot_perception
 

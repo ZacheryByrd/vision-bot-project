@@ -25,14 +25,18 @@ find_package(std_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 
 # The node (ROS plumbing around the detectors), as a component and as the
-# standalone executable perception_node.
+# standalone executable perception_node. The executable has its own main so a
+# node that cannot start exits with status 1 instead of aborting.
 add_library(perception_component SHARED src/perception_node.cpp)
 target_link_libraries(perception_component detectors)
 ament_target_dependencies(perception_component
   rclcpp rclcpp_components sensor_msgs std_msgs cv_bridge)
-rclcpp_components_register_node(perception_component
-  PLUGIN "vision_bot_perception::PerceptionNode"
-  EXECUTABLE perception_node)
+rclcpp_components_register_nodes(perception_component "vision_bot_perception::PerceptionNode")
+
+add_executable(perception_node src/perception_main.cpp)
+target_link_libraries(perception_node perception_component)
+ament_target_dependencies(perception_node rclcpp)
+install(TARGETS perception_node DESTINATION lib/${PROJECT_NAME})
 
 install(TARGETS detectors perception_component
   ARCHIVE DESTINATION lib

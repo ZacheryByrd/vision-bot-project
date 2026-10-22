@@ -144,7 +144,9 @@ class TestPerceptionNode(unittest.TestCase):
 
     def test_dnn_bad_model_path_fails_at_startup(self, proc_info, proc_output):
         proc_info.assertWaitForShutdown(process=bad_dnn, timeout=10)
-        self.assertNotEqual(proc_info[bad_dnn].returncode, 0)
+        # A clean error exit, not an abort: an abort leaves a crash dump (and on
+        # WSL hands it to the crash-capture helper, which can take longer than this).
+        self.assertEqual(proc_info[bad_dnn].returncode, 1)
         proc_output.assertWaitFor("/nonexistent/model.caffemodel", process=bad_dnn, timeout=5)
 
 
