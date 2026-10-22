@@ -13,6 +13,9 @@ This repo is a real, runnable project, not pseudocode:
 ```
 ros2_ws/src/vision_bot/   ROS2 package: perception_node, motor_control_node,
                            gpio_motor_driver, Gazebo launch + world + URDF
+ros2_ws/src/vision_bot_perception/
+                           perception_node in C++ (rclcpp + OpenCV), a drop-in
+                           replacement picked with perception_impl:=cpp
 docker/                    Dockerfile + compose file -- the actual dev
                            environment (ROS2 Humble + Gazebo Classic 11)
 dashboard/                 Next.js live-feed + status dashboard
@@ -278,6 +281,17 @@ Details: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md). Why each piece is the w
 Against a scripted stand-in robot that never yields (`plugin_ab_20261010_065758`), the same layer made crossing worse (truly arrived 10/10 off vs 5/10 on); with both robots running it, crossing contacts drop to zero. The one failure in the table above is a symmetric standoff (both robots stop facing each other).
 
 **EKF regression in CI:** a recorded drive replayed through the EKF gives a mean error of 0.0606 to 0.0612 m over 5 replays (`replay_regression_baseline_20261016.txt`); CI fails above 0.08 m (`benchmarks/baseline.json`).
+
+**perception_node in Python vs C++** on the same 200 simulation camera frames, 3 rounds each, simulation stopped while measuring (`perception_impl_hsv_20261022_200811`, `perception_impl_dnn_20261022_225800`). Latency is publish-to-detection; CPU is the node process while frames stream at 30 Hz.
+
+| Backend | Implementation | Mean latency | p95 | Max | CPU (% of one core, per round) | Detections/s at 30 Hz |
+|---|---|---|---|---|---|---|
+| HSV (red box) | Python | 22.4 ms | 37.7 ms | 147.5 ms | 44, 55, 57 | 30.0, 29.5, 30.0 |
+| HSV (red box) | C++ | 11.8 ms | 19.6 ms | 77.4 ms | 28, 44, 45 | 30.0, 30.0, 29.8 |
+| DNN (person) | Python | 81.2 ms | 125.0 ms | 367.6 ms | 309, 419, 432 | 10.9, 18.1, 18.6 |
+| DNN (person) | C++ | 82.8 ms | 128.0 ms | 265.7 ms | 344, 290, 363 | 12.0, 11.8, 17.1 |
+
+Both implementations gave identical detections on every frame (0 differences in either backend). The C++ node about halves HSV latency, where the OpenCV work per frame is small and the node's own overhead is a large share of the cost. With the DNN backend nearly all the time goes to OpenCV's inference, the same C++ library under both nodes, so the two come out level, and neither keeps up with 30 Hz on this CPU. Pick the implementation with `perception_impl:=python|cpp` on `sim_launch.py`, `line_follow_launch.py`, `dnn_follow_launch.py`, `nav_sim.launch.py` and `hardware_launch.py`.
 
 ### Run it
 
