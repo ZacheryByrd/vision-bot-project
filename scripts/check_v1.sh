@@ -16,8 +16,8 @@
 #
 # Overrides (optional): V1_NODES (space-separated node names), V1_CAMERA_TOPIC,
 # V1_TIMEOUT_S (seconds to wait for the nodes), V1_LAUNCH_ARGS (extra
-# sim_launch.py arguments, e.g. "perception_impl:=cpp" for the C++
-# perception_node).
+# sim_launch.py arguments, e.g. "perception_impl:=python" for the Python
+# perception_node; the default is the C++ one).
 
 V1_NODES=${V1_NODES:-"perception_node motor_control_node"}
 V1_CAMERA_TOPIC=${V1_CAMERA_TOPIC:-/camera/image_raw}

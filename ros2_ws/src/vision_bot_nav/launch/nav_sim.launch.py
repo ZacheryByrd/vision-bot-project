@@ -78,7 +78,7 @@ def generate_launch_description():
             "line_follow", default_value="false",
             description="Start v1 perception + motor control, feeding cmd_vel_line."),
         DeclareLaunchArgument(
-            "perception_impl", default_value="python",
+            "perception_impl", default_value="cpp",
             description="perception_node implementation when line_follow is true: python "
             "(vision_bot) or cpp (vision_bot_perception)."),
         DeclareLaunchArgument(

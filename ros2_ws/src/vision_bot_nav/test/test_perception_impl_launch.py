@@ -67,7 +67,7 @@ def perception_package(launch_file, impl):
 
 
 @pytest.mark.parametrize("launch_file", LAUNCH_FILES, ids=lambda p: p.name)
-@pytest.mark.parametrize("impl, package", [(None, "vision_bot"), ("python", "vision_bot"),
+@pytest.mark.parametrize("impl, package", [(None, "vision_bot_perception"), ("python", "vision_bot"),
                                            ("cpp", "vision_bot_perception")])
 def test_perception_impl_selects_package(launch_file, impl, package):
     assert perception_package(launch_file, impl) == package

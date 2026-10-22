@@ -68,7 +68,7 @@ def generate_launch_description():
     # perception_node implementation: "python" (vision_bot) or "cpp"
     # (vision_bot_perception, same node name, topics and parameters).
     perception_impl_arg = DeclareLaunchArgument(
-        "perception_impl", default_value="python",
+        "perception_impl", default_value="cpp",
         description="perception_node implementation: python (vision_bot) or cpp "
         "(vision_bot_perception).",
     )
