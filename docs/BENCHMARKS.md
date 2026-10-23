@@ -58,5 +58,14 @@ Start the simulation in the background (`xvfb-run -a ros2 launch ... gui:=false 
 | Command | `python3 replay_regression.py --bag bags/drift_loop` (no simulation needed; about 165 s) |
 | What it does | Plays the bag through a fresh `ekf_node` using `ekf.yaml` from the repo and scores the EKF output against the bag's ground truth like section 1. Exits 1 if the mean error is above `threshold_m` in `baseline.json` (0.08 m: the 0.0608 m baseline plus a 0.02 m margin, about 30 times the spread between replays). CI runs it on every push to a `v2/*` branch. |
 
+## 6. perception_node, Python vs C++
+| | |
+|---|---|
+| Results | HSV: `perception_impl_hsv_20261022_200811.{md,csv}`; DNN: `perception_impl_dnn_20261022_225800.{md,csv}` (both commit `b39f811`) |
+| Capture (simulation running) | HSV: `ros2 launch vision_bot sim_launch.py gui:=false`, then `python3 perception_impl.py capture --out /tmp/frames_hsv.npz`. DNN: `ros2 launch vision_bot dnn_follow_launch.py gui:=false`, then `python3 perception_impl.py capture --out /tmp/frames_dnn.npz`. Stop the simulation afterwards. |
+| Command (simulation stopped) | `python3 perception_impl.py run --frames /tmp/frames_hsv.npz --backend hsv`, and the same with `frames_dnn.npz --backend dnn` |
+| What it does | `capture` keeps every 3rd camera frame (200 frames, 640x480 `rgb8`, as Gazebo publishes them). `run` starts each implementation in turn as its own process on `/bench/image`, alternating the order over 3 rounds. Latency is lockstep: publish one frame, wait for its detection, timed in the benchmark process (10 warm-up frames per start are not counted). CPU is the node process's `utime+stime` from `/proc/<pid>/stat` while the frames stream at 30 Hz for 20 s. Parity compares the two implementations' detections frame by frame. |
+| Why the simulation is stopped | With Gazebo running, it and the simulation's own perception node take several cores (load average 16 during the DNN capture), and the measurement would mostly reflect that contention. The frames are the same simulation frames either way. |
+
 ## Not in benchmarks/results
 Gate checks that are pass/fail rather than measurements (the fleet bridge's outage and token tests, the dashboard checks, the map check against the world file) are recorded with their evidence in `docs/INTERVIEW_NOTES.md` under each gate, not as benchmark numbers.

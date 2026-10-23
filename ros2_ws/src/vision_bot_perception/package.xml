@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>vision_bot_perception</name>
+  <version>0.1.0</version>
+  <description>
+    perception_node in C++ (rclcpp + OpenCV): a drop-in replacement for
+    vision_bot's Python perception_node, with the same node name, topics,
+    message layout and parameters. Pick it with perception_impl:=cpp.
+  </description>
+  <maintainer email="you@example.com">Zach</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>libopencv-dev</depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>nlohmann-json-dev</test_depend>
+  <test_depend>launch_testing_ament_cmake</test_depend>
+  <test_depend>launch_testing</test_depend>
+  <test_depend>launch_ros</test_depend>
+  <test_depend>rcl_interfaces</test_depend>
+  <test_depend>python3-opencv</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

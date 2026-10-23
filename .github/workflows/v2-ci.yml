@@ -40,25 +40,29 @@ jobs:
         run: |
           source /opt/ros/humble/setup.bash
           cd ros2_ws
-          colcon build --packages-up-to vision_bot vision_bot_nav vision_bot_plugins fleet_bridge
+          colcon build --packages-up-to vision_bot vision_bot_nav vision_bot_plugins \
+            vision_bot_perception fleet_bridge
 
-      - name: colcon test (costmap plugin gtests and launch test)
+      - name: colcon test (costmap plugin and C++ perception gtests and launch tests)
         run: |
           source /opt/ros/humble/setup.bash
           cd ros2_ws
-          colcon test --packages-select vision_bot_plugins
+          colcon test --packages-select vision_bot_plugins vision_bot_perception
           colcon test-result --verbose
 
       - name: Python tests (benchmarks, scripts, launch helpers, fleet bridge)
         run: |
           source /opt/ros/humble/setup.bash
+          # The launch-file tests resolve package share directories.
+          source ros2_ws/install/setup.bash
           python3 -m pytest -q benchmarks/tests scripts/tests \
             ros2_ws/src/vision_bot_nav/test ros2_ws/src/fleet_bridge/test
 
       - name: Lint (flake8)
         run: |
           python3 -m flake8 --max-line-length 110 benchmarks scripts/map_to_png.py
-          python3 -m flake8 --max-line-length 100 ros2_ws/src/fleet_bridge scripts/seed_fleet.py
+          python3 -m flake8 --max-line-length 100 ros2_ws/src/fleet_bridge scripts/seed_fleet.py \
+            scripts/make_perception_fixtures.py ros2_ws/src/vision_bot_perception/test
 
       - name: EKF replay regression
         run: |

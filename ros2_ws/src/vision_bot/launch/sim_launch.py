@@ -25,7 +25,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 import xacro
@@ -65,6 +65,13 @@ def generate_launch_description():
     dnn_model_arg = DeclareLaunchArgument("dnn_model_path", default_value="")
     dnn_class_id_arg = DeclareLaunchArgument("dnn_target_class_id", default_value="15")
     dnn_confidence_arg = DeclareLaunchArgument("dnn_confidence_threshold", default_value="0.5")
+    # perception_node implementation: "python" (vision_bot) or "cpp"
+    # (vision_bot_perception, same node name, topics and parameters).
+    perception_impl_arg = DeclareLaunchArgument(
+        "perception_impl", default_value="cpp",
+        description="perception_node implementation: python (vision_bot) or cpp "
+        "(vision_bot_perception).",
+    )
     # Control tuning -- see motor_control_node.py. Defaults match the
     # red-box demo (approach-and-stop). The line-following demo overrides
     # stop_area_fraction to effectively disable stopping (drive continuously)
@@ -124,7 +131,9 @@ def generate_launch_description():
         return ParameterValue(LaunchConfiguration(name), value_type=float)
 
     perception = Node(
-        package="vision_bot",
+        package=PythonExpression([
+            "'vision_bot_perception' if '", LaunchConfiguration("perception_impl"),
+            "' == 'cpp' else 'vision_bot'"]),
         executable="perception_node",
         name="perception_node",
         output="screen",
@@ -168,6 +177,7 @@ def generate_launch_description():
         dnn_model_arg,
         dnn_class_id_arg,
         dnn_confidence_arg,
+        perception_impl_arg,
         angular_gain_arg,
         base_speed_arg,
         stop_area_arg,

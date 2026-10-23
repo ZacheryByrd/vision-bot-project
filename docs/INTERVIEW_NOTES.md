@@ -333,3 +333,47 @@ The mux forwards the highest-priority input that has published within 0.5 s, so 
 | Replay baseline | 0.0606 to 0.0612 m over 5 local replays; 0.0606 and 0.0608 m on GitHub's runner |
 | Fresh clone following the README | working demo: both robots registered with the fleet, a map click sent robot1 to the clicked point, `succeeded` in 18 s, 0 Nav2 lifecycle failures |
 | README numbers | each traced to a file in `benchmarks/results/` (or `benchmarks/baseline.json`) |
+
+## Gate 3 (C++ perception): perception_node in C++ (2026-10-21)
+
+### What was built
+- **`vision_bot_perception`**, a C++ package with the HSV and DNN detectors as a ROS-free library and `PerceptionNode`, an rclcpp component also built as the `perception_node` executable. It is a drop-in replacement for the Python node: same node name, topics, message layout and parameters.
+- **`perception_impl:=python|cpp`** on `sim_launch.py`, `nav_sim.launch.py` and `hardware_launch.py` (default `python`); `line_follow_launch.py` and `dnn_follow_launch.py` pick it up through their include of `sim_launch.py`. `check_v1.sh` takes `V1_LAUNCH_ARGS` so the same check runs on either implementation.
+
+### Worth being able to explain
+- **Equivalence is tested, not asserted.** The gtests run the C++ detectors on PNGs whose expected outputs came from the Python functions on the same pixels (1e-6 for HSV, 1e-3 for DNN). The launch test then checks the ROS side: rgb8 input is converted (Gazebo's camera is `R8G8B8`), the debug image keeps the input header, parameter changes apply on the next frame, `publish_debug_image:=false` skips the conversion and the publish, and a bad DNN model path kills the node at startup instead of leaving it publishing `detected=0`.
+- **Why a component.** The same class runs standalone or inside a component container with the camera driver, where intra-process transport can pass images without a copy. Nothing uses that yet; it costs nothing to keep open.
+
+### Results
+| Check | Result |
+|---|---|
+| `colcon test` on `vision_bot_perception` | 12 tests, 0 failures (4 gtests, 6 launch-test cases) |
+| Python tests | 165 passed |
+| `check_v1.sh` | PASS with the default (Python), PASS with `V1_LAUNCH_ARGS="perception_impl:=cpp"` (launch log shows the `(C++)` startup line) |
+| Red-box demo on the C++ node | stopped at area fraction 0.153 (threshold 0.15), centered within 0.041, held |
+| Line follow on the C++ node | 3.7 laps (1337 degrees around the track center) in 300 s, radius 0.89 to 0.92 m, every 13 to 15 s sample at least 52 degrees forward |
+| CI on the branch | green, run 39693523882 (ROS job and dashboard job) |
+
+## Gate 4 (C++ perception): Python vs C++ benchmark (2026-10-22)
+
+### What was built
+- **`benchmarks/perception_impl.py`**: captures 200 frames from the simulation camera, then, with the simulation stopped, runs each implementation as its own process on the same frames and records lockstep latency, the node's CPU while frames stream at 30 Hz, and frame-by-frame parity. 3 rounds per implementation, order alternating. Its pure helpers are unit tested.
+
+### Worth being able to explain
+- **The C++ port is faster only where the node's own overhead matters.** With HSV, mean latency fell from 22.4 ms to 11.8 ms, p95 from 37.7 to 19.6 ms and CPU from 44 to 57% of a core to 28 to 45%. With the DNN backend the two were level (81.2 vs 82.8 ms mean): nearly all the time is OpenCV's inference, which is the same C++ library under both nodes. Rewriting a node in C++ is not a speedup by itself; it removes the cost the language adds, and that cost is only large when the work per frame is small.
+- **Neither node keeps up with 30 Hz on the DNN backend** (11 to 19 detections/s). A real-time DNN path on this CPU would need a smaller input, a lighter model, or skipping frames, not a different language.
+- **The DNN preprocessing quirk was found by the equivalence test.** Python's `blobFromImage(..., 127.5)` subtracts 127.5 from the blue channel only, because OpenCV's Python binding turns a bare number into `Scalar(127.5, 0, 0, 0)`. A C++ port using the "correct" three-channel mean disagreed with Python by up to 0.017 in offset, which the 1e-3 reference test caught. The port keeps Python's behavior so the two stay identical; whether to fix both is an open decision (DECISIONS #80).
+- **Measuring with the simulation stopped.** During the DNN capture, Gazebo plus the simulation's own perception node pushed the load average to 16, so measuring with the simulation running would mostly measure contention. The benchmark captures first and measures afterwards on the same frames.
+
+### What broke and how it was diagnosed
+- **A first full HSV run was set aside**: the benchmark script was not committed yet, so the summary named a commit that did not contain the code that ran. The script was committed (`b39f811`) and the run repeated; the committed results name `b39f811`.
+- **The bad-model launch test failed once, and the cause was an abort.** The executable generated by `rclcpp_components_register_node` lets the constructor's exception escape, so a DNN model that cannot be loaded ended in SIGABRT. Under WSL every abort is handed to a crash-capture helper, which held the process past the test's 10 s wait. The executable now has its own `main` that logs the reason and exits with status 1; the test asserts 1 (it saw -6), and the component is still registered for containers (`v2/cpp-5-clean-exit`, CI run 39871200295).
+- **The Docker Desktop engine stopped and the app quit during runs.** Each run was started detached inside the container (`docker exec -d`, writing to a log), so a closed session no longer kills a run in progress.
+
+### Results
+| Check | Result |
+|---|---|
+| Benchmark helper tests | 9 passed |
+| HSV, 200 frames x 3 rounds | Python 22.4 ms mean (p95 37.7, max 147.5), C++ 11.8 ms (p95 19.6, max 77.4); 600/600 answered each; parity 0 differences |
+| DNN, 200 frames x 3 rounds | Python 81.2 ms mean (p95 125.0), C++ 82.8 ms (p95 128.0); 600/600 answered each; parity 0 differences on 172 frames with a person |
+| Raw results | `benchmarks/results/perception_impl_hsv_20261022_200811.*`, `perception_impl_dnn_20261022_225800.*` (commit `2f0b572`) |

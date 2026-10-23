@@ -1,0 +1,270 @@
+{
+ "hsv": [
+  {
+   "image": "hsv_empty.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "image": "hsv_centered.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    0.003125,
+    0.004166666666666667,
+    0.046875,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_left.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    -0.496875,
+    0.004166666666666667,
+    0.020833333333333332,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_right.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    0.503125,
+    0.004166666666666667,
+    0.020833333333333332,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_above.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    0.003125,
+    -0.49583333333333335,
+    0.020833333333333332,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_small.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    0.003125,
+    0.004166666666666667,
+    0.005208333333333333,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_large.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    0.003125,
+    0.004166666666666667,
+    0.13020833333333334,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_below_min_area.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "image": "hsv_blue.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "image": "hsv_tie.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    0.503125,
+    0.004166666666666667,
+    0.020833333333333332,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_yellow.png",
+   "params": {
+    "hue_low": 25,
+    "hue_high": 35,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 150
+   },
+   "expected": [
+    1.0,
+    0.190625,
+    0.17083333333333334,
+    0.032552083333333336,
+    1.0
+   ]
+  },
+  {
+   "image": "hsv_off_corner.png",
+   "params": {
+    "hue_low": 0,
+    "hue_high": 10,
+    "sat_low": 120,
+    "val_low": 80,
+    "min_area": 200
+   },
+   "expected": [
+    1.0,
+    -0.91875,
+    -0.8916666666666667,
+    0.008138020833333334,
+    1.0
+   ]
+  }
+ ],
+ "dnn": [
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 15,
+   "confidence_threshold": 0.5,
+   "expected": [
+    1.0,
+    0.01752150058746338,
+    0.05542251467704773,
+    0.578976114023213,
+    0.9998220801353455
+   ]
+  },
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 15,
+   "confidence_threshold": 0.99,
+   "expected": [
+    1.0,
+    0.01752150058746338,
+    0.05542251467704773,
+    0.578976114023213,
+    0.9998220801353455
+   ]
+  },
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 15,
+   "confidence_threshold": 1.01,
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "image": "vision_bot/worlds/models/person_photo_model/materials/textures/person.png",
+   "target_class_id": 7,
+   "confidence_threshold": 0.5,
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  },
+  {
+   "image": "hsv_empty.png",
+   "target_class_id": 15,
+   "confidence_threshold": 0.5,
+   "expected": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ]
+  }
+ ]
+}
