@@ -1,0 +1,3742 @@
+{
+ "cases": [
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.5
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    1.0
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.075,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.06999999999999999,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.024999999999999994,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.015,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.015,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.141,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.1316,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.046999999999999986,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0282,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0282,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.06
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.1425,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.13299999999999998,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04749999999999999,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.028499999999999998,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.028499999999999998,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    0.05
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.15,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.13999999999999999,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04999999999999999,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.03,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.03,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.15,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.13999999999999999,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04999999999999999,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.03,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.03,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.15,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.13999999999999999,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04999999999999999,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.03,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.03,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.1425,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.13299999999999998,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04749999999999999,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.028499999999999998,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.028499999999999998,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.05
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.105,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.098,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.03499999999999999,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.021,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.021,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.3
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.029999999999999992,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.027999999999999994,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.009999999999999995,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.005999999999999998,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.005999999999999998,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -0.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.0,
+    -1.5
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    2.7
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -1.0,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    1.8
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.05,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0495,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.045000000000000005,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.043500000000000004,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.042505,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0425,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.025,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.010000000000000002,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    0.9
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.094,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.09306,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08460000000000001,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08178,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.07990939999999999,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0799,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.047,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0188,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.06,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    0.108
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.095,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.09405,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0855,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08265,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0807595,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08075,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0475,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.019000000000000003,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.05,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.1,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.099,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.09000000000000001,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08700000000000001,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08501,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.085,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.05,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.020000000000000004,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": -0.049,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.1,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.099,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.09000000000000001,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08700000000000001,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08501,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.085,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.05,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.020000000000000004,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.1,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.099,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.09000000000000001,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08700000000000001,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08501,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.085,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.05,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.020000000000000004,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.095,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.09405,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0855,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08265,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0807595,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.08075,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0475,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.019000000000000003,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.05,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -0.09000000000000001
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.06999999999999999,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.06929999999999999,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.063,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.060899999999999996,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.05950699999999999,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.05949999999999999,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.034999999999999996,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.013999999999999999,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.3,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -0.54
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.019999999999999997,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.019799999999999998,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.018,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0174,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.017001999999999996,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.016999999999999998,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.009999999999999998,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.003999999999999999,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 0.8,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.4400000000000002
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.0,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -1.8
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": 1.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.8,
+    "base_linear_speed": 0.1,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 1.0
+   },
+   "expected": [
+    0.0,
+    -2.7
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": -0.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    0.5
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.01,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.13,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.1499,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.15,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.5,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 0.9,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": 0.5,
+   "area_fraction": 1.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.05,
+    "stop_area_fraction": 0.0
+   },
+   "expected": [
+    0.0,
+    -0.5
+   ]
+  },
+  {
+   "offset_x": -0.02,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.0,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.147,
+    0.02
+   ]
+  },
+  {
+   "offset_x": -0.02,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.0,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04899999999999999,
+    0.02
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.0,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.15,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.0,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.0,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04999999999999999,
+    -0.0
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.0,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.0,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.147,
+    -0.02
+   ]
+  },
+  {
+   "offset_x": 0.02,
+   "area_fraction": 0.1,
+   "params": {
+    "angular_gain": 1.0,
+    "base_linear_speed": 0.15,
+    "offset_deadband": 0.0,
+    "stop_area_fraction": 0.15
+   },
+   "expected": [
+    0.04899999999999999,
+    -0.02
+   ]
+  }
+ ]
+}
