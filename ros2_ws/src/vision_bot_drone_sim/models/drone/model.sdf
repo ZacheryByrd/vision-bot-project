@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- A quadcopter silhouette for the sky cameras: body plus four arms and rotor
+     discs, about 0.4 m across, dark gray. Static, so physics never moves it;
+     drone_flight sets its pose through /gazebo/set_entity_state. -->
+<sdf version="1.6">
+  <model name="drone">
+    <static>true</static>
+    <link name="body">
+      <visual name="hub">
+        <geometry><box><size>0.14 0.14 0.05</size></box></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient><diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="arm_a">
+        <pose>0 0 0 0 0 0.7854</pose>
+        <geometry><box><size>0.40 0.03 0.02</size></box></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient><diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="arm_b">
+        <pose>0 0 0 0 0 -0.7854</pose>
+        <geometry><box><size>0.40 0.03 0.02</size></box></geometry>
+        <material><ambient>0.12 0.12 0.12 1</ambient><diffuse>0.12 0.12 0.12 1</diffuse></material>
+      </visual>
+      <visual name="rotor_1">
+        <pose>0.1414 0.1414 0.015 0 0 0</pose>
+        <geometry><cylinder><radius>0.06</radius><length>0.005</length></cylinder></geometry>
+        <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+      </visual>
+      <visual name="rotor_2">
+        <pose>-0.1414 0.1414 0.015 0 0 0</pose>
+        <geometry><cylinder><radius>0.06</radius><length>0.005</length></cylinder></geometry>
+        <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+      </visual>
+      <visual name="rotor_3">
+        <pose>0.1414 -0.1414 0.015 0 0 0</pose>
+        <geometry><cylinder><radius>0.06</radius><length>0.005</length></cylinder></geometry>
+        <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+      </visual>
+      <visual name="rotor_4">
+        <pose>-0.1414 -0.1414 0.015 0 0 0</pose>
+        <geometry><cylinder><radius>0.06</radius><length>0.005</length></cylinder></geometry>
+        <material><ambient>0.1 0.1 0.1 1</ambient><diffuse>0.1 0.1 0.1 1</diffuse></material>
+      </visual>
+    </link>
+  </model>
+</sdf>

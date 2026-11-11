@@ -1,0 +1,6 @@
+# Gazebo's ROS clock at 30 Hz for drone runs (the default is 10 Hz). Nodes on
+# sim time only see time move when /clock arrives, so drone_flight's 30 Hz
+# pose updates need a 30 Hz clock. Used only with drone:=true.
+gazebo:
+  ros__parameters:
+    publish_rate: 30.0
